@@ -26,7 +26,7 @@ def to_yaml(data):
     using yaml short syntax for functions where possible
     """
 
-    return yaml.dump(data, encoding="utf-8")
+    return yaml.dump(data)
 
 def flip(template):
     """
