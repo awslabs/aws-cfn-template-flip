@@ -6,7 +6,15 @@ AWS CloudFormation Template Flip is a tool that converts [AWS CloudFormation](ht
 
 The term "Flip" is inspired by the well-known Unix command-line tool [flip](https://ccrma.stanford.edu/~craig/utility/flip/) which converts text files between Unix, Mac, and MS-DOS formats.
 
+## Installation
+
+AWS CloudFormation Template Flip can be installed using [pip](https://pip.pypa.io/en/stable/):
+
+    pip install cfn_flip
+
 ## Usage
+
+### Command line tool
 
     cfn-flip [<from.template> [<to.template>]]
 
@@ -32,13 +40,9 @@ Examples:
 
         cfn-flip examples/test.json output.yaml
 
-## Installation
+### Python package
 
-AWS CloudFormation Template Flip can be installed using pip:
-
-    pip install cfn_flip
-
-To use it from your own python project, import one of the functions `flip`, `to_yaml`, or `to_json` as needed.
+To use AWS CloudFormation Template Flip from your own python projects, import one of the functions `flip`, `to_yaml`, or `to_json` as needed.
 
     from cfn_flip import flip, to_yaml, to_json
 
