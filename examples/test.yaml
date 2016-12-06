@@ -1,0 +1,4 @@
+Description: Test
+Foo: !Join [' ', [The, !Ref 'cake', is, a, lie]]
+Bar: !Base64
+  Ref: Binary
