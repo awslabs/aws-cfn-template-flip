@@ -11,7 +11,7 @@ or in the "license" file accompanying this file. This file is distributed on an 
 from setuptools import setup
 
 setup(
-    name="CloudFormation Template Flip",
+    name="cfn_flip",
     version="0.1",
     description="Convert AWS CloudFormation templates between JSON and YAML formats",
     url="https://github.com/awslabs/aws-cfn-template-flip",
