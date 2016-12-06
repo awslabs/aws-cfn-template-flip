@@ -16,6 +16,10 @@ import yaml
 yaml.add_representer(six.text_type, lambda dumper, value: dumper.represent_scalar(u'tag:yaml.org,2002:str', value))
 
 def multi_constructor(loader, tag_suffix, node):
+    """
+    Deal with !Ref style function format
+    """
+
     if tag_suffix != "Ref":
         tag_suffix = "Fn::{}".format(tag_suffix)
 
@@ -37,6 +41,10 @@ def multi_constructor(loader, tag_suffix, node):
 yaml.add_multi_constructor("!", multi_constructor)
 
 def construct_mapping(self, node, deep=False):
+    """
+    Ensure mappings are vanilla
+    """
+
     mapping = collections.OrderedDict()
 
     for key_node, value_node in node.value:
@@ -54,6 +62,10 @@ class odict_items(list):
         pass
 
 def representer(dumper, data):
+    """
+    Deal with !Ref style function format
+    """
+
     if len(data.keys()) != 1:
         items = odict_items(data.items())
         data.items = lambda: items
