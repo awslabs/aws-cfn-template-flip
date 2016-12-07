@@ -12,19 +12,23 @@ from .custom_yaml import yaml
 import collections
 import json
 
-def to_json(data):
+def to_json(template):
     """
     Convert the data to json
     undoing yaml short syntax where detected
     """
 
+    data = yaml.load(template)
+
     return json.dumps(data, indent=4)
 
-def to_yaml(data):
+def to_yaml(template):
     """
     Convert the data to yaml
     using yaml short syntax for functions where possible
     """
+
+    data = json.loads(template, object_pairs_hook=collections.OrderedDict)
 
     return yaml.dump(data)
 
@@ -34,13 +38,11 @@ def flip(template):
     """
 
     try:
-        data = json.loads(template, object_pairs_hook=collections.OrderedDict)
-        return to_yaml(data)
+        return to_yaml(template)
     except ValueError:
         pass  # Hand over to the yaml parser
 
     try:
-        data = yaml.load(template)
-        return to_json(data)
-    except Exception as e:
+        return to_json(template)
+    except Exception:
         raise Exception("Could not determine the input format. Perhaps it's malformed?")

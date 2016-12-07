@@ -58,6 +58,18 @@ class odict_items(list):
     Helper class to ensure ordering is preserved
     """
 
+    def __init__(self, items):
+        new_items = []
+
+        for item in items:
+            class C(type(item)):
+                def __lt__(self, *args, **kwargs):
+                    return False
+
+            new_items.append(C(item))
+
+        return super(odict_items, self).__init__(new_items)
+
     def sort(self):
         pass
 
