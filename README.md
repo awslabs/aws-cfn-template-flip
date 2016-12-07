@@ -14,6 +14,10 @@ AWS CloudFormation Template Flip can be installed using [pip](https://pip.pypa.i
 
 ## Usage
 
+AWS CloudFormation Template Flip is both a command line tool and a python library.
+
+Note that the command line tool is spelled `cfn-flip` with a hyphen, while the python package is `cfn_flip` with an underscore.
+
 ### Command line tool
 
     cfn-flip [<from.template> [<to.template>]]
