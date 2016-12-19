@@ -8,48 +8,59 @@ Licensed under the Apache License, Version 2.0 (the "License"). You may not use 
 or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.                                                 
 """
 
-from .clean import clean
-from .custom_yaml import yaml
-import collections
 import json
 
-def to_json(template, clean_up=False):
+def convert_join(sep, parts):
     """
-    Convert the data to json
-    undoing yaml short syntax where detected
-    """
-
-    data = yaml.load(template)
-
-    if clean_up:
-        data = clean(data)
-
-    return json.dumps(data, indent=4)
-
-def to_yaml(template, clean_up=False):
-    """
-    Convert the data to yaml
-    using yaml short syntax for functions where possible
+    Fix a Join ;)
     """
 
-    data = json.loads(template, object_pairs_hook=collections.OrderedDict)
+    plain_string = True
 
-    if clean_up:
-        data = clean(data)
+    args = {}
 
-    return yaml.dump(data)
+    for i, part in enumerate(parts):
+        if isinstance(part, dict):
+            plain_string = False
 
-def flip(template, clean_up=False):
+            if "Ref" in part:
+                parts[i] = "${{{}}}".format(part["Ref"])
+            elif "Fn::GetAtt" in part:
+                params = part["Fn::GetAtt"]
+                parts[i] = "${{{}.{}}}".format(params[0], params[1])
+            else:
+                param_name = "Param{}".format(len(args) + 1)
+                args[param_name] = part
+                parts[i] = "${{{}}}".format(param_name)
+
+    source = sep.join(parts)
+
+    if plain_string:
+        return source
+
+    if args:
+        return {
+            "Fn::Sub": [source, args],
+        }
+    
+    return {
+        "Fn::Sub": source,
+    }
+
+def clean(source):
     """
-    Figure out the input format and convert the data to the opposing output format
+    Clean up the source:
+    * Replace use of Fn::Join with Fn::Sub
     """
 
-    try:
-        return to_yaml(template, clean_up)
-    except ValueError:
-        pass  # Hand over to the yaml parser
+    if isinstance(source, dict):
+        for key, value in source.items():
+            if key == "Fn::Join":
+                return convert_join(value[0], value[1])
 
-    try:
-        return to_json(template, clean_up)
-    except Exception:
-        raise Exception("Could not determine the input format. Perhaps it's malformed?")
+            source[key] = clean(value)
+
+    elif isinstance(source, list):
+        return [clean(item) for item in source]
+
+    return source

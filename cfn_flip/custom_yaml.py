@@ -109,3 +109,4 @@ yaml.add_representer(six.text_type, lambda dumper, value: dumper.represent_scala
 yaml.add_multi_constructor("!", multi_constructor)
 yaml.add_constructor(TAG_MAP, construct_mapping)
 yaml.add_representer(collections.OrderedDict, representer)
+yaml.add_representer(dict, representer)

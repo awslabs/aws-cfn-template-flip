@@ -20,13 +20,22 @@ Note that the command line tool is spelled `cfn-flip` with a hyphen, while the p
 
 ### Command line tool
 
-    cfn-flip [<from.template> [<to.template>]]
+    cfn-flip [-h] [-c] [input] [output]
 
-If no filenames are supplied, input will be taken from `stdin`, and output will be to `stdout`.
+    AWS CloudFormation Template Flip is a tool that converts AWS CloudFormation
+    templates between JSON and YAML formats, making use of the YAML format's short
+    function syntax where possible.
 
-If only one filename is supplied, input will be taken from the file, and output will be to `stdout`.
+    positional arguments:
+      input        File to read from. If you do not supply a file, input will be
+                   read from stdin.
+      output       File to write to. If you do not supply a file, output will be
+                   written to stdout.
 
-If two filenames are supplied, input will be taken from the first file, and output will be to the second file.
+    optional arguments:
+      -h, --help   show this help message and exit
+      -c, --clean  Performs some opinionated cleanup on your template. For now,
+                   this just converts uses of Fn::Join to Fn::Sub.
 
 Cloudflip will detect the format of the input template and convert JSON to YAML and YAML to JSON, respectively.
 
@@ -44,6 +53,10 @@ Examples:
 
         cfn-flip examples/test.json output.yaml
 
+* Reading from a file and cleaning up the output
+
+        cfn-flip -c examples/test.json
+
 ### Python package
 
 To use AWS CloudFormation Template Flip from your own python projects, import one of the functions `flip`, `to_yaml`, or `to_json` as needed.
@@ -53,3 +66,4 @@ To use AWS CloudFormation Template Flip from your own python projects, import on
     some_yaml_or_json = flip(some_json_or_yaml)
     some_json = to_json(some_yaml)
     some_yaml = to_yaml(some_json)
+    clean_yaml = to_yaml(some_json, clean_up=True)
