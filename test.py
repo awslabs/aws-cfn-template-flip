@@ -158,8 +158,17 @@ class CfnFlipTestCase(unittest.TestCase):
         with open("examples/test.yaml", "r") as f:
             self.input_yaml = f.read()
 
+        with open("examples/clean.json", "r") as f:
+            self.clean_json = f.read()
+
+        with open("examples/clean.yaml", "r") as f:
+            self.clean_yaml = f.read()
+
         self.parsed_json = json.loads(self.input_json)
         self.parsed_yaml = yaml.load(self.input_yaml)
+
+        self.parsed_clean_json = json.loads(self.clean_json)
+        self.parsed_clean_yaml = yaml.load(self.clean_yaml)
 
         self.bad_data = "<!DOCTYPE html>\n\n<html>\n\tThis isn't right!\n</html>"
 
@@ -237,6 +246,34 @@ class CfnFlipTestCase(unittest.TestCase):
         parsed_actual = yaml.load(actual)
 
         self.assertDictEqual(parsed_actual, self.parsed_yaml)
+
+    def test_flip_to_clean_json(self):
+        """
+        Test that flip performs correctly transforming from yaml to json
+        and the `clean_up` flag is active
+        """
+
+        actual = cfn_flip.flip(self.input_yaml, clean_up=True)
+
+        parsed_actual = json.loads(actual)
+
+        self.assertDictEqual(parsed_actual, self.parsed_clean_json)
+
+    def test_flip_to_clean_yaml(self):
+        """
+        Test that flip performs correctly transforming from json to yaml
+        and the `clean_up` flag is active
+        """
+
+        actual = cfn_flip.flip(self.input_json, clean_up=True)
+
+        # The result should not parse as json
+        with self.assertRaises(ValueError):
+            json.loads(actual)
+
+        parsed_actual = yaml.load(actual)
+
+        self.assertDictEqual(parsed_actual, self.parsed_clean_yaml)
 
     def test_flip_with_bad_data(self):
         """
