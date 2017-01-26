@@ -10,7 +10,9 @@ The term "Flip" is inspired by the well-known Unix command-line tool [flip](http
 
 AWS CloudFormation Template Flip can be installed using [pip](https://pip.pypa.io/en/stable/):
 
-    pip install cfn_flip
+```bash
+pip install cfn_flip
+```
 
 ## Usage
 
@@ -43,27 +45,53 @@ Examples:
 
 * Reading from `stdin` and outputting to `stdout`:
 
-        cat examples/test.json | cfn-flip
+    ```bash
+    cat examples/test.json | cfn-flip
+    ```
 
 * Reading from a file and outputting to `stdout`:
 
-        cfn-flip examples/test.yaml
+    ```bash
+    cfn-flip examples/test.yaml
+    ```
 
 * Reading from a file and outputting to another file:
 
-        cfn-flip examples/test.json output.yaml
+    ```bash
+    cfn-flip examples/test.json output.yaml
+    ```
 
 * Reading from a file and cleaning up the output
 
-        cfn-flip -c examples/test.json
+    ```bash
+    cfn-flip -c examples/test.json
+    ```
 
 ### Python package
 
 To use AWS CloudFormation Template Flip from your own python projects, import one of the functions `flip`, `to_yaml`, or `to_json` as needed.
 
-    from cfn_flip import flip, to_yaml, to_json
+```python
+from cfn_flip import flip, to_yaml, to_json
 
-    some_yaml_or_json = flip(some_json_or_yaml)
-    some_json = to_json(some_yaml)
-    some_yaml = to_yaml(some_json)
-    clean_yaml = to_yaml(some_json, clean_up=True)
+"""
+All functions expect a string containing serialised data
+and return a string containing serialised data
+or raise an exception if there is a problem parsing the input
+"""
+
+# flip takes a best guess at the serialisation format
+# and returns the opposite, converting json into yaml and vice versa
+some_yaml_or_json = flip(some_json_or_yaml)
+
+# to_json expects serialised yaml as input, and returns serialised json
+some_json = to_json(some_yaml)
+
+# to_yaml expects serialised json as input, and returns serialised yaml
+some_yaml = to_yaml(some_json)
+
+# The clean_up flag performs some opinionated, CloudFormation-specific sanitation of the input
+# For example, converting uses of Fn::Join to Fn::Sub
+# flip, to_yaml, and to_json all support the clean_up flag
+clean_yaml = to_yaml(some_json, clean_up=True)
+```
