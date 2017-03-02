@@ -9,6 +9,7 @@ or in the "license" file accompanying this file. This file is distributed on an 
 """
 
 from .clean import clean
+from .custom_json import DateTimeAwareJsonEncoder
 from .custom_yaml import yaml
 import collections
 import json
@@ -24,7 +25,7 @@ def to_json(template, clean_up=False):
     if clean_up:
         data = clean(data)
 
-    return json.dumps(data, indent=4)
+    return json.dumps(data, indent=4, cls=DateTimeAwareJsonEncoder)
 
 def to_yaml(template, clean_up=False):
     """

@@ -283,5 +283,26 @@ class CfnFlipTestCase(unittest.TestCase):
         with self.assertRaisesRegexp(Exception, self.fail_message):
             cfn_flip.flip(self.bad_data)
 
+    def test_flip_to_json_with_datetimes(self):
+        """
+        Test that the json encoder correctly handles dates and datetimes
+        """
+
+        from datetime import date, datetime, time
+
+        tricky_data = """
+        a date: 2017-03-02
+        a datetime: 2017-03-02 19:52:00
+        """
+
+        actual = cfn_flip.to_json(tricky_data)
+
+        parsed_actual = json.loads(actual)
+
+        self.assertDictEqual(parsed_actual, {
+            "a date": "2017-03-02",
+            "a datetime": "2017-03-02T19:52:00",
+        })
+
 if __name__ == "__main__":
     unittest.main()
