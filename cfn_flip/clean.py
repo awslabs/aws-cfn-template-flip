@@ -57,8 +57,10 @@ def clean(source):
         for key, value in source.items():
             if key == "Fn::Join":
                 return convert_join(value[0], value[1])
-
-            source[key] = clean(value)
+            elif key == "Fn::GetAtt":
+                source[key] = "{}.{}".format(value[0], value[1])
+            else:
+                source[key] = clean(value)
 
     elif isinstance(source, list):
         return [clean(item) for item in source]

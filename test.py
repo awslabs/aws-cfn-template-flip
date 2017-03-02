@@ -304,5 +304,20 @@ class CfnFlipTestCase(unittest.TestCase):
             "a datetime": "2017-03-02T19:52:00",
         })
 
+    def test_flip_to_yaml_with_clean_getatt(self):
+        """
+        The clean flag should convert Fn::GetAtt to its short form
+        """
+
+        data = """
+        {
+            "Fn::GetAtt": ["Left", "Right"]
+        }
+        """
+
+        expected = "!GetAtt 'Left.Right'\n"
+
+        self.assertEqual(cfn_flip.to_yaml(data, clean_up=True), expected)
+
 if __name__ == "__main__":
     unittest.main()
