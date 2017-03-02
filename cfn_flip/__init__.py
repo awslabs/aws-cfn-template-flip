@@ -52,5 +52,5 @@ def flip(template, clean_up=False):
 
     try:
         return to_json(template, clean_up)
-    except Exception:
-        raise Exception("Could not determine the input format. Perhaps it's malformed?")
+    except Exception as e:
+        raise Exception("Could not determine the input format: {}", e)

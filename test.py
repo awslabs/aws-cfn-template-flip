@@ -172,7 +172,7 @@ class CfnFlipTestCase(unittest.TestCase):
 
         self.bad_data = "<!DOCTYPE html>\n\n<html>\n\tThis isn't right!\n</html>"
 
-        self.fail_message = "Could not determine the input format. Perhaps it's malformed?"
+        self.fail_message = "Could not determine the input format: .+"
 
     def test_to_json_with_yaml(self):
         """
