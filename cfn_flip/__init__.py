@@ -38,7 +38,7 @@ def to_yaml(template, clean_up=False):
     if clean_up:
         data = clean(data)
 
-    return yaml.dump(data)
+    return yaml.dump(data, default_flow_style=False)
 
 def flip(template, clean_up=False):
     """
