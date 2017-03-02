@@ -73,14 +73,20 @@ class odict_items(list):
     def sort(self):
         pass
 
+class ODict(collections.OrderedDict):
+    def __init__(self, *args, **kwargs):
+        super(ODict, self).__init__(*args, **kwargs)
+
+        items = odict_items(self.items())
+        self.items = lambda: items
+
 def representer(dumper, data):
     """
     Deal with !Ref style function format and OrderedDict
     """
 
     if len(data.keys()) != 1:
-        items = odict_items(data.items())
-        data.items = lambda: items
+        data = ODict(data)
 
         return dumper.represent_mapping(TAG_MAP, data, flow_style=False)
 
