@@ -14,7 +14,7 @@ from .custom_yaml import yaml
 import collections
 import json
 
-def to_json(template, clean_up=False):
+def to_json(template, clean_up=False, indent_spaces=4):
     """
     Convert the data to json
     undoing yaml short syntax where detected
@@ -25,9 +25,12 @@ def to_json(template, clean_up=False):
     if clean_up:
         data = clean(data)
 
-    return json.dumps(data, indent=4, cls=DateTimeAwareJsonEncoder)
+    if indent_spaces is None:
+        indent_spaces = 4
 
-def to_yaml(template, clean_up=False):
+    return json.dumps(data, cls=DateTimeAwareJsonEncoder, indent=indent_spaces)
+
+def to_yaml(template, clean_up=False, indent_spaces=2):
     """
     Convert the data to yaml
     using yaml short syntax for functions where possible
@@ -38,19 +41,22 @@ def to_yaml(template, clean_up=False):
     if clean_up:
         data = clean(data)
 
-    return yaml.dump(data, default_flow_style=False)
+    if indent_spaces is None:
+        indent_spaces = 2
 
-def flip(template, clean_up=False):
+    return yaml.dump(data, default_flow_style=False, indent=indent_spaces)
+
+def flip(template, clean_up=False, indent_spaces=None):
     """
     Figure out the input format and convert the data to the opposing output format
     """
 
     try:
-        return to_yaml(template, clean_up)
+        return to_yaml(template, clean_up, indent_spaces)
     except ValueError:
         pass  # Hand over to the yaml parser
 
     try:
-        return to_json(template, clean_up)
+        return to_json(template, clean_up, indent_spaces)
     except Exception as e:
         raise Exception("Could not determine the input format: {}", e)
