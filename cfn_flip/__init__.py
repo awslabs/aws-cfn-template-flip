@@ -14,6 +14,16 @@ from .custom_yaml import yaml
 import collections
 import json
 
+class MyDumper(yaml.Dumper):
+  """
+  Indent block sequences from parent using more common style
+  ("  - entry"  vs "- entry").  
+  Causes fewer problems with validation and tools.
+  """
+  
+  def increase_indent(self,flow=False, indentless=False):
+    return super(MyDumper,self).increase_indent(flow, False)
+
 def to_json(template, clean_up=False):
     """
     Convert the data to json
@@ -38,7 +48,7 @@ def to_yaml(template, clean_up=False):
     if clean_up:
         data = clean(data)
 
-    return yaml.dump(data, default_flow_style=False)
+    return yaml.dump(data, Dumper=MyDumper, default_flow_style=False)
 
 def flip(template, clean_up=False):
     """
