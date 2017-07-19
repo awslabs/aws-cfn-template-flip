@@ -14,13 +14,14 @@ import yaml
 
 TAG_MAP = "tag:yaml.org,2002:map"
 TAG_STRING = "tag:yaml.org,2002:str"
+UNCONVERTED_SUFFIXES = ["Ref", "Condition"]
 
 def multi_constructor(loader, tag_suffix, node):
     """
     Deal with !Ref style function format
     """
 
-    if tag_suffix != "Ref":
+    if tag_suffix not in UNCONVERTED_SUFFIXES:
         tag_suffix = "Fn::{}".format(tag_suffix)
 
     constructor = None
@@ -93,7 +94,7 @@ def representer(dumper, data):
     key = list(data)[0]
     tag = key
 
-    if key != "Ref" and not key.startswith("Fn::"):
+    if key not in UNCONVERTED_SUFFIXES and not key.startswith("Fn::"):
         return dumper.represent_mapping(TAG_MAP, data, flow_style=False)
 
     if key.startswith("Fn::"):
