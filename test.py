@@ -319,5 +319,28 @@ class CfnFlipTestCase(unittest.TestCase):
 
         self.assertEqual(cfn_flip.to_yaml(data, clean_up=True), expected)
 
+    def test_flip_to_json_with_condition(self):
+        """
+        Test that the Condition key is correctly converted
+        """
+
+        source = """
+            MyAndCondition: !And
+            - !Equals ["sg-mysggroup", !Ref "ASecurityGroup"]
+            - !Condition SomeOtherCondition
+        """
+
+        expected = {
+            "MyAndCondition": {
+                "Fn::And": [
+                    {"Fn::Equals": ["sg-mysggroup", {"Ref": "ASecurityGroup"}]},
+                    {"Condition": "SomeOtherCondition"}
+                ]
+            }
+        }
+
+        actual = cfn_flip.to_json(source, clean_up=True)
+        self.assertEqual(expected, json.loads(actual))
+
 if __name__ == "__main__":
     unittest.main()
