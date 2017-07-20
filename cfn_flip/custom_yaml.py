@@ -8,9 +8,11 @@ Licensed under the Apache License, Version 2.0 (the "License"). You may not use 
 or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.                                                 
 """
 
+import imp
 import six
 import collections
-import yaml
+
+custom_yaml = imp.load_module("custom_yaml", *imp.find_module("yaml"))
 
 TAG_MAP = "tag:yaml.org,2002:map"
 TAG_STRING = "tag:yaml.org,2002:str"
@@ -26,11 +28,11 @@ def multi_constructor(loader, tag_suffix, node):
 
     constructor = None
 
-    if isinstance(node, yaml.ScalarNode):
+    if isinstance(node, custom_yaml.ScalarNode):
         constructor = loader.construct_scalar
-    elif isinstance(node, yaml.SequenceNode):
+    elif isinstance(node, custom_yaml.SequenceNode):
         constructor = loader.construct_sequence
-    elif isinstance(node, yaml.MappingNode):
+    elif isinstance(node, custom_yaml.MappingNode):
         constructor = loader.construct_mapping
     else:
         raise "Bad tag: !{}".format(tag_suffix)
@@ -112,8 +114,8 @@ def representer(dumper, data):
     return dumper.represent_scalar(tag, data)
 
 # Customise our yaml
-yaml.add_representer(six.text_type, lambda dumper, value: dumper.represent_scalar(TAG_STRING, value))
-yaml.add_multi_constructor("!", multi_constructor)
-yaml.add_constructor(TAG_MAP, construct_mapping)
-yaml.add_representer(collections.OrderedDict, representer)
-yaml.add_representer(dict, representer)
+custom_yaml.add_representer(six.text_type, lambda dumper, value: dumper.represent_scalar(TAG_STRING, value))
+custom_yaml.add_multi_constructor("!", multi_constructor)
+custom_yaml.add_constructor(TAG_MAP, construct_mapping)
+custom_yaml.add_representer(collections.OrderedDict, representer)
+custom_yaml.add_representer(dict, representer)
