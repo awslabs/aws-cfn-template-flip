@@ -11,140 +11,8 @@ or in the "license" file accompanying this file. This file is distributed on an 
 import cfn_flip
 import json
 import unittest
-import yaml
+from cfn_flip.custom_yaml import custom_yaml
 
-class ReplaceJoinTestCase(unittest.TestCase):
-    """
-    Check that joins get replaced with Subs
-    """
-
-    def test_basic_case(self):
-        """
-        As simple as it gets
-        """
-
-        source = {
-            "Fn::Join": [
-                " ",
-                ["The", "cake", "is", "a", "lie"],
-            ],
-        }
-
-        expected = "The cake is a lie"
-
-        actual = cfn_flip.clean(source)
-
-        self.assertEqual(expected, actual)
-
-    def test_ref(self):
-        """
-        Refs should be replaced by ${value}
-        """
-
-        source = {
-            "Fn::Join": [
-                " ",
-                ["The", {"Ref": "Cake"}, "is", "a", "lie"],
-            ],
-        }
-
-        expected = {
-            "Fn::Sub": "The ${Cake} is a lie",
-        }
-
-        actual = cfn_flip.clean(source)
-
-        self.assertEqual(expected, actual)
-
-    def test_get_att(self):
-        """
-        Base64 etc should be replaced by parameters to Sub
-        """
-
-        source = {
-            "Fn::Join": [
-                " ",
-                ["The", {"Fn::GetAtt": ["Cake", "Hole"]}, "is", "a", "lie"],
-            ],
-        }
-
-        expected = {
-            "Fn::Sub": "The ${Cake.Hole} is a lie",
-        }
-
-        actual = cfn_flip.clean(source)
-
-        self.assertEqual(expected, actual)
-
-    def test_others(self):
-        """
-        GetAtt should be replaced by ${Thing.Property}
-        """
-
-        source = {
-            "Fn::Join": [
-                " ",
-                ["The", {"Fn::Base64": "Notreallybase64"}, "is", "a", "lie"],
-            ],
-        }
-
-        expected = {
-            "Fn::Sub": [
-                "The ${Param1} is a lie",
-                {
-                    "Param1": {
-                        "Fn::Base64": "Notreallybase64",
-                    },
-                },
-            ],
-        }
-
-        actual = cfn_flip.clean(source)
-
-        self.assertEqual(expected, actual)
-
-    def test_in_array(self):
-        """
-        Converting Join to Sub should still work when the join is part of a larger array
-        """
-
-        source = {
-            "things": [
-                "Just a string",
-                {
-                    "Fn::Join": [
-                        " ",
-                        ["The", {"Fn::Base64": "Notreallybase64"}, "is", "a", "lie"],
-                    ],
-                },
-                {
-                    "Another": "thing",
-                },
-            ],
-        }
-
-        expected = {
-            "things": [
-                "Just a string",
-                {
-                    "Fn::Sub": [
-                        "The ${Param1} is a lie",
-                        {
-                            "Param1": {
-                                "Fn::Base64": "Notreallybase64",
-                            },
-                        },
-                    ],
-                },
-                {
-                    "Another": "thing",
-                },
-            ],
-        }
-
-        actual = cfn_flip.clean(source)
-
-        self.assertEqual(expected, actual)
 
 class CfnFlipTestCase(unittest.TestCase):
     def setUp(self):
@@ -165,10 +33,10 @@ class CfnFlipTestCase(unittest.TestCase):
             self.clean_yaml = f.read()
 
         self.parsed_json = json.loads(self.input_json)
-        self.parsed_yaml = yaml.load(self.input_yaml)
+        self.parsed_yaml = custom_yaml.load(self.input_yaml)
 
         self.parsed_clean_json = json.loads(self.clean_json)
-        self.parsed_clean_yaml = yaml.load(self.clean_yaml)
+        self.parsed_clean_yaml = custom_yaml.load(self.clean_yaml)
 
         self.bad_data = "<!DOCTYPE html>\n\n<html>\n\tThis isn't right!\n</html>"
 
@@ -208,7 +76,7 @@ class CfnFlipTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             json.loads(actual)
 
-        parsed_actual = yaml.load(actual)
+        parsed_actual = custom_yaml.load(actual)
 
         self.assertDictEqual(parsed_actual, self.parsed_yaml)
 
@@ -243,7 +111,7 @@ class CfnFlipTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             json.loads(actual)
 
-        parsed_actual = yaml.load(actual)
+        parsed_actual = custom_yaml.load(actual)
 
         self.assertDictEqual(parsed_actual, self.parsed_yaml)
 
@@ -271,7 +139,7 @@ class CfnFlipTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             json.loads(actual)
 
-        parsed_actual = yaml.load(actual)
+        parsed_actual = custom_yaml.load(actual)
 
         self.assertDictEqual(parsed_actual, self.parsed_clean_yaml)
 
@@ -341,6 +209,3 @@ class CfnFlipTestCase(unittest.TestCase):
 
         actual = cfn_flip.to_json(source, clean_up=True)
         self.assertEqual(expected, json.loads(actual))
-
-if __name__ == "__main__":
-    unittest.main()
