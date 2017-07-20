@@ -187,6 +187,28 @@ class CfnFlipTestCase(unittest.TestCase):
 
         self.assertEqual(cfn_flip.to_yaml(data, clean_up=True), expected)
 
+    def test_getatt_from_yaml(self):
+        """
+        Test that we correctly convert the short form of GetAtt
+        into the correct JSON format from YAML
+        """
+
+        source = """
+        - !GetAtt foo.bar
+        - !GetAtt [foo, bar]
+        - Fn::GetAtt: [foo, bar]
+        """
+
+        expected = [
+            {"Fn::GetAtt": ["foo", "bar"]},
+            {"Fn::GetAtt": ["foo", "bar"]},
+            {"Fn::GetAtt": ["foo", "bar"]},
+        ]
+
+        actual = cfn_flip.to_json(source, clean_up=True)
+        print(actual)
+        self.assertEqual(expected, json.loads(actual))
+
     def test_flip_to_json_with_condition(self):
         """
         Test that the Condition key is correctly converted
