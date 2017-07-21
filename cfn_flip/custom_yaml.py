@@ -28,7 +28,9 @@ def multi_constructor(loader, tag_suffix, node):
 
     constructor = None
 
-    if isinstance(node, custom_yaml.ScalarNode):
+    if tag_suffix == "Fn::GetAtt":
+        constructor = construct_getatt
+    elif isinstance(node, custom_yaml.ScalarNode):
         constructor = loader.construct_scalar
     elif isinstance(node, custom_yaml.SequenceNode):
         constructor = loader.construct_sequence
@@ -37,9 +39,16 @@ def multi_constructor(loader, tag_suffix, node):
     else:
         raise "Bad tag: !{}".format(tag_suffix)
 
-    return {
+    return  {
         tag_suffix: constructor(node)
     }
+
+def construct_getatt(node):
+    """
+    Reconstruct !GetAtt into a list
+    """
+
+    return node.value.split(".")
 
 def construct_mapping(self, node, deep=False):
     """
@@ -106,6 +115,9 @@ def representer(dumper, data):
 
     data = data[key]
 
+    if tag == "!GetAtt":
+        data = "{}.{}".format(data[0], data[1])
+
     if isinstance(data, dict):
         return dumper.represent_mapping(tag, data, flow_style=False)
     elif isinstance(data, list):
@@ -115,7 +127,7 @@ def representer(dumper, data):
 
 # Customise our yaml
 custom_yaml.add_representer(six.text_type, lambda dumper, value: dumper.represent_scalar(TAG_STRING, value))
-custom_yaml.add_multi_constructor("!", multi_constructor)
 custom_yaml.add_constructor(TAG_MAP, construct_mapping)
+custom_yaml.add_multi_constructor("!", multi_constructor)
 custom_yaml.add_representer(collections.OrderedDict, representer)
 custom_yaml.add_representer(dict, representer)
