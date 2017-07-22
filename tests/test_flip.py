@@ -55,15 +55,11 @@ class CfnFlipTestCase(unittest.TestCase):
 
     def test_to_json_with_json(self):
         """
-        Test that to_json still works when passed json
-        (All json is valid yaml)
+        Test that to_json fails when passed json
         """
 
-        actual = cfn_flip.to_json(self.input_json)
-
-        parsed_actual = json.loads(actual)
-
-        self.assertDictEqual(parsed_actual, self.parsed_json)
+        with self.assertRaises(ValueError):
+            actual = cfn_flip.to_json(self.input_json)
 
     def test_to_yaml_with_json(self):
         """
