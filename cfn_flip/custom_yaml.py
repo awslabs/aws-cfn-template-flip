@@ -8,15 +8,29 @@ Licensed under the Apache License, Version 2.0 (the "License"). You may not use 
 or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.                                                 
 """
 
-import imp
 import six
 import collections
+import yaml
 
-custom_yaml = imp.load_module("custom_yaml", *imp.find_module("yaml"))
 
 TAG_MAP = "tag:yaml.org,2002:map"
 TAG_STRING = "tag:yaml.org,2002:str"
 UNCONVERTED_SUFFIXES = ["Ref", "Condition"]
+
+class CustomDumper(yaml.Dumper):
+  """
+  Indent block sequences from parent using more common style
+  ("  - entry"  vs "- entry").
+  Causes fewer problems with validation and tools.
+  """
+
+  def increase_indent(self,flow=False, indentless=False):
+    return super(CustomDumper,self).increase_indent(flow, False)
+
+
+class CustomLoader(yaml.Loader):
+    pass
+
 
 def multi_constructor(loader, tag_suffix, node):
     """
@@ -30,11 +44,11 @@ def multi_constructor(loader, tag_suffix, node):
 
     if tag_suffix == "Fn::GetAtt":
         constructor = construct_getatt
-    elif isinstance(node, custom_yaml.ScalarNode):
+    elif isinstance(node, yaml.ScalarNode):
         constructor = loader.construct_scalar
-    elif isinstance(node, custom_yaml.SequenceNode):
+    elif isinstance(node, yaml.SequenceNode):
         constructor = loader.construct_sequence
-    elif isinstance(node, custom_yaml.MappingNode):
+    elif isinstance(node, yaml.MappingNode):
         constructor = loader.construct_mapping
     else:
         raise "Bad tag: !{}".format(tag_suffix)
@@ -126,8 +140,8 @@ def representer(dumper, data):
     return dumper.represent_scalar(tag, data)
 
 # Customise our yaml
-custom_yaml.add_representer(six.text_type, lambda dumper, value: dumper.represent_scalar(TAG_STRING, value))
-custom_yaml.add_constructor(TAG_MAP, construct_mapping)
-custom_yaml.add_multi_constructor("!", multi_constructor)
-custom_yaml.add_representer(collections.OrderedDict, representer)
-custom_yaml.add_representer(dict, representer)
+CustomDumper.add_representer(six.text_type, lambda dumper, value: dumper.represent_scalar(TAG_STRING, value))
+CustomLoader.add_constructor(TAG_MAP, construct_mapping)
+CustomLoader.add_multi_constructor("!", multi_constructor)
+CustomDumper.add_representer(collections.OrderedDict, representer)
+CustomDumper.add_representer(dict, representer)

@@ -10,19 +10,11 @@ or in the "license" file accompanying this file. This file is distributed on an 
 
 from .clean import clean
 from .custom_json import DateTimeAwareJsonEncoder
-from .custom_yaml import custom_yaml
+from .custom_yaml import CustomDumper, CustomLoader
 import collections
 import json
+import yaml
 
-class MyDumper(custom_yaml.Dumper):
-  """
-  Indent block sequences from parent using more common style
-  ("  - entry"  vs "- entry").  
-  Causes fewer problems with validation and tools.
-  """
-  
-  def increase_indent(self,flow=False, indentless=False):
-    return super(MyDumper,self).increase_indent(flow, False)
 
 def to_json(template, clean_up=False):
     """
@@ -30,7 +22,7 @@ def to_json(template, clean_up=False):
     undoing yaml short syntax where detected
     """
 
-    data = custom_yaml.load(template)
+    data = yaml.load(template, Loader=CustomLoader)
 
     if clean_up:
         data = clean(data)
@@ -48,7 +40,7 @@ def to_yaml(template, clean_up=False):
     if clean_up:
         data = clean(data)
 
-    return custom_yaml.dump(data, Dumper=MyDumper, default_flow_style=False)
+    return yaml.dump(data, Dumper=CustomDumper, default_flow_style=False)
 
 def flip(template, clean_up=False):
     """

@@ -9,6 +9,7 @@ or in the "license" file accompanying this file. This file is distributed on an 
 """
 
 import cfn_flip
+import collections
 import json
 import unittest
 import yaml
@@ -19,7 +20,7 @@ class YamlPatchTestCase(unittest.TestCase):
     Check that we don't patch yaml for everybody
     """
 
-    def test_yaml_ordered_dict(self):
+    def test_yaml_no_ordered_dict(self):
         """
         cfn-flip patches yaml to use OrderedDict by default
         Check that we don't do this for folks who import cfn_flip and yaml
@@ -29,3 +30,14 @@ class YamlPatchTestCase(unittest.TestCase):
         data = yaml.load(yaml_string)
 
         self.assertEqual(type(data), dict)
+
+    def test_yaml_no_ordered_dict(self):
+        """
+        cfn-flip patches yaml to use OrderedDict by default
+        Check that we do this for normal cfn_flip use cases
+        """
+
+        yaml_string = "key: value"
+        data = yaml.load(yaml_string, Loader=cfn_flip.CustomLoader)
+
+        self.assertEqual(type(data), collections.OrderedDict)
