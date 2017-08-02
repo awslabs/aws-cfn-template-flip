@@ -1,11 +1,11 @@
-"""                                                                                                      
-Copyright 2016-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.                                  
-                                                                                                         
-Licensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with the License. A copy of the License is located at                                              
-                                                                                                         
-    http://aws.amazon.com/apache2.0/                                                                     
-                                                                                                         
-or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.                                                 
+"""
+Copyright 2016-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with the License. A copy of the License is located at
+
+    http://aws.amazon.com/apache2.0/
+
+or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """
 
 import cfn_flip
@@ -183,11 +183,42 @@ class CfnFlipTestCase(unittest.TestCase):
         }
         """
 
-        
+
         expected = "!GetAtt 'Left.Right'\n"
 
         self.assertEqual(cfn_flip.to_yaml(data, clean_up=False), expected)
         self.assertEqual(cfn_flip.to_yaml(data, clean_up=True), expected)
+
+    def test_flip_to_yaml_with_multi_level_getatt(self):
+        """
+        Test that we correctly convert multi-level Fn::GetAtt
+        from JSON to YAML format
+        """
+
+        data = """
+        {
+            "Fn::GetAtt": ["First", "Second", "Third"]
+        }
+        """
+
+        expected = "!GetAtt 'First.Second.Third'\n"
+
+        self.assertEqual(cfn_flip.to_yaml(data), expected)
+
+    def test_flip_to_json_with_multi_level_getatt(self):
+        """
+        Test that we correctly convert multi-level Fn::GetAtt
+        from YAML to JSON format
+        """
+
+        data = "!GetAtt 'First.Second.Third'\n"
+
+        expected = {
+            "Fn::GetAtt": ["First", "Second", "Third"]
+        }
+
+        actual = cfn_flip.to_json(data, clean_up=True)
+        self.assertEqual(expected, json.loads(actual))
 
     def test_getatt_from_yaml(self):
         """
