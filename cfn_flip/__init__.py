@@ -20,47 +20,56 @@ class MyDumper(custom_yaml.Dumper):
   ("  - entry"  vs "- entry").  
   Causes fewer problems with validation and tools.
   """
-  
   def increase_indent(self,flow=False, indentless=False):
     return super(MyDumper,self).increase_indent(flow, False)
+
+def _load(template, clean_up):
+    try:
+        fmt, data = "json", json.loads(template, object_pairs_hook=collections.OrderedDict)
+    except Exception:
+        try:
+            fmt, data = "yaml", custom_yaml.load(template)
+        except Exception as e:
+            raise Exception("Could not determine the input format: {}", e, template)
+    if clean_up:
+        data = clean(data)
+    return fmt, data
+
+def _json(template):
+    return json.dumps(template, indent=4, cls=DateTimeAwareJsonEncoder)
+
+def _yaml(template):
+    return custom_yaml.dump(template, Dumper=MyDumper, default_flow_style=False)
 
 def to_json(template, clean_up=False):
     """
     Convert the data to json
     undoing yaml short syntax where detected
     """
-
-    data = custom_yaml.load(template)
-
-    if clean_up:
-        data = clean(data)
-
-    return json.dumps(data, indent=4, cls=DateTimeAwareJsonEncoder)
+    fmt, data = _load(template, clean_up)
+    if fmt == "json":
+        raise ValueError("Expected to_json() input to be non-JSON")
+    return _json(data)
 
 def to_yaml(template, clean_up=False):
     """
     Convert the data to yaml
     using yaml short syntax for functions where possible
     """
+    fmt, data = _load(template, clean_up)
+    if fmt == "yaml":
+        raise ValueError("Expected to_yaml() input to be non-YAML")
+    return _yaml(data)
 
-    data = json.loads(template, object_pairs_hook=collections.OrderedDict)
-
-    if clean_up:
-        data = clean(data)
-
-    return custom_yaml.dump(data, Dumper=MyDumper, default_flow_style=False)
-
-def flip(template, clean_up=False):
+def flip(template, output_json=False, output_yaml=False, clean_up=False):
     """
     Figure out the input format and convert the data to the opposing output format
     """
 
-    try:
-        return to_yaml(template, clean_up)
-    except ValueError:
-        pass  # Hand over to the yaml parser
+    fmt, data = _load(template, clean_up)
+    flip = not output_json and not output_yaml
 
-    try:
-        return to_json(template, clean_up)
-    except Exception as e:
-        raise Exception("Could not determine the input format: {}", e)
+    if output_json or (flip and fmt == "yaml"):
+        return _json(data)
+    elif output_yaml or (flip and fmt == "json"):
+        return _yaml(data)

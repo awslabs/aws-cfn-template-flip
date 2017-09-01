@@ -21,6 +21,9 @@ def main():
     # Set up the arg parser
     parser = argparse.ArgumentParser(description="AWS CloudFormation Template Flip is a tool that converts AWS CloudFormation templates between JSON and YAML formats, making use of the YAML format's short function syntax where possible.")
     parser.add_argument("-c", "--clean", action="store_true", help="Performs some opinionated cleanup on your template. For now, this just converts uses of Fn::Join to Fn::Sub.")
+
+    parser.add_argument("-j", "--json", action="store_true", help="Convert template to JSON format")
+    parser.add_argument("-y", "--yaml", action="store_true", help="Convert template to YAML format")
     parser.add_argument("input", nargs="?", type=argparse.FileType("r"), default=sys.stdin, help="File to read from. If you do not supply a file, input will be read from stdin.")
     parser.add_argument("output", nargs="?", type=argparse.FileType("w"), default=sys.stdout, help="File to write to. If you do not supply a file, output will be written to stdout.")
 
@@ -29,7 +32,7 @@ def main():
     template = args.input.read()
 
     try:
-        args.output.write(flip(template, args.clean))
+        args.output.write(flip(template, args.json, args.yaml, args.clean))
     except Exception as e:
         sys.stderr.write("{}\n".format(str(e)))
         sys.exit(1)
