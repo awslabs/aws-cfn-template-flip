@@ -47,7 +47,6 @@ def construct_getatt(node):
     """
     Reconstruct !GetAtt into a list
     """
-    print(node)
     if isinstance(node.value, str):
         return node.value.split(".")
     elif isinstance(node.value, list):
