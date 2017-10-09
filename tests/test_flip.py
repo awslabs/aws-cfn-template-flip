@@ -9,9 +9,10 @@ or in the "license" file accompanying this file. This file is distributed on an 
 """
 
 import cfn_flip
+from cfn_flip.custom_yaml import CustomLoader
 import json
 import unittest
-from cfn_flip.custom_yaml import custom_yaml
+import yaml
 
 
 class CfnFlipTestCase(unittest.TestCase):
@@ -33,10 +34,10 @@ class CfnFlipTestCase(unittest.TestCase):
             self.clean_yaml = f.read()
 
         self.parsed_json = json.loads(self.input_json)
-        self.parsed_yaml = custom_yaml.load(self.input_yaml)
+        self.parsed_yaml = yaml.load(self.input_yaml, Loader=CustomLoader)
 
         self.parsed_clean_json = json.loads(self.clean_json)
-        self.parsed_clean_yaml = custom_yaml.load(self.clean_yaml)
+        self.parsed_clean_yaml = yaml.load(self.clean_yaml, Loader=CustomLoader)
 
         self.bad_data = "<!DOCTYPE html>\n\n<html>\n\tThis isn't right!\n</html>"
 
@@ -76,7 +77,7 @@ class CfnFlipTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             json.loads(actual)
 
-        parsed_actual = custom_yaml.load(actual)
+        parsed_actual = yaml.load(actual, Loader=CustomLoader)
 
         self.assertDictEqual(parsed_actual, self.parsed_yaml)
 
@@ -111,7 +112,7 @@ class CfnFlipTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             json.loads(actual)
 
-        parsed_actual = custom_yaml.load(actual)
+        parsed_actual = yaml.load(actual, Loader=CustomLoader)
 
         self.assertDictEqual(parsed_actual, self.parsed_yaml)
 
@@ -139,7 +140,7 @@ class CfnFlipTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             json.loads(actual)
 
-        parsed_actual = custom_yaml.load(actual)
+        parsed_actual = yaml.load(actual, Loader=CustomLoader)
 
         self.assertDictEqual(parsed_actual, self.parsed_clean_yaml)
 

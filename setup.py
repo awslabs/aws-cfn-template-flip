@@ -24,6 +24,7 @@ setup(
         "six",
     ],
     zip_safe=False,
+    test_suite="tests",
     entry_points={
         "console_scripts": ["cfn-flip=cfn_flip.main:main"],
     },
