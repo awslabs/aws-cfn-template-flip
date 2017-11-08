@@ -61,12 +61,13 @@ def construct_getatt(node):
     """
     Reconstruct !GetAtt into a list
     """
-    if isinstance(node.value, str):
+
+    if isinstance(node.value, six.text_type):
         return node.value.split(".")
     elif isinstance(node.value, list):
         return [s.value for s in node.value]
     else:
-        raise ValueError("Unexpected node type")
+        raise ValueError("Unexpected node type: {}".format(type(node.value)))
 
 def construct_mapping(self, node, deep=False):
     """
