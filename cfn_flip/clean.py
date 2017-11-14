@@ -30,7 +30,7 @@ def convert_join(sep, parts):
                 parts[i] = "${{{}}}".format(".".join(params))
             else:
                 param_name = "Param{}".format(len(args) + 1)
-                args[param_name] = part
+                args[param_name] = clean(part)
                 parts[i] = "${{{}}}".format(param_name)
 
         else:
