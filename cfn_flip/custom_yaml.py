@@ -142,8 +142,16 @@ def representer(dumper, data):
 
     return dumper.represent_scalar(tag, data)
 
+def scalar_representer(dumper, value):
+    style = None
+
+    if "\n" in value:
+        style = "\""
+
+    return dumper.represent_scalar(TAG_STRING, value, style=style)
+
 # Customise our yaml
-CustomDumper.add_representer(six.text_type, lambda dumper, value: dumper.represent_scalar(TAG_STRING, value))
+CustomDumper.add_representer(six.text_type, scalar_representer)
 CustomLoader.add_constructor(TAG_MAP, construct_mapping)
 CustomLoader.add_multi_constructor("!", multi_constructor)
 CustomDumper.add_representer(collections.OrderedDict, representer)
