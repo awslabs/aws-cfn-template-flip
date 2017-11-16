@@ -33,6 +33,9 @@ def convert_join(sep, parts):
                 args[param_name] = part
                 parts[i] = "${{{}}}".format(param_name)
 
+        else:
+            parts[i] = part.replace("${", "${!")
+
     source = sep.join(parts)
 
     if plain_string:

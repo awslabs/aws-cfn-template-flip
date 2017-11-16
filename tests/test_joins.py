@@ -166,3 +166,21 @@ class ReplaceJoinTestCase(unittest.TestCase):
         actual = cfn_flip.clean(source)
 
         self.assertEqual(expected, actual)
+
+    def test_literals(self):
+        """
+        Test that existing ${var} in source is respected
+        """
+
+        source = {
+            "Fn::Join": [
+                " ",
+                ["The", "${cake}", "is", "a", "lie"],
+            ],
+        }
+
+        expected = "The ${!cake} is a lie"
+
+        actual = cfn_flip.clean(source)
+
+        self.assertEqual(expected, actual)
