@@ -184,7 +184,6 @@ class CfnFlipTestCase(unittest.TestCase):
         }
         """
 
-
         expected = "!GetAtt 'Left.Right'\n"
 
         self.assertEqual(cfn_flip.to_yaml(data, clean_up=False), expected)
@@ -267,3 +266,21 @@ class CfnFlipTestCase(unittest.TestCase):
 
         actual = cfn_flip.to_json(source, clean_up=True)
         self.assertEqual(expected, json.loads(actual))
+
+    def test_flip_to_yaml_with_newlines(self):
+        """
+        Test that strings containing newlines are quoted
+        """
+
+        source = r'["a", "b\n", "c\r\n", "d\r"]'
+
+        expected = "".join([
+            '- a\n',
+            '- "b\\n"\n',
+            '- "c\\r\\n"\n',
+            '- "d\\r"\n',
+        ])
+
+        actual = cfn_flip.to_yaml(source)
+
+        self.assertEqual(expected, actual)

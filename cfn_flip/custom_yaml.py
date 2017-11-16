@@ -18,19 +18,17 @@ TAG_STRING = "tag:yaml.org,2002:str"
 UNCONVERTED_SUFFIXES = ["Ref", "Condition"]
 
 class CustomDumper(yaml.Dumper):
-  """
-  Indent block sequences from parent using more common style
-  ("  - entry"  vs "- entry").
-  Causes fewer problems with validation and tools.
-  """
-
-  def increase_indent(self,flow=False, indentless=False):
-    return super(CustomDumper,self).increase_indent(flow, False)
-
+    """
+    Indent block sequences from parent using more common style
+    ("  - entry"  vs "- entry").
+    Causes fewer problems with validation and tools.
+    """
+  
+    def increase_indent(self, flow=False, indentless=False):
+        return super(CustomDumper,self).increase_indent(flow, False)
 
 class CustomLoader(yaml.Loader):
     pass
-
 
 def multi_constructor(loader, tag_suffix, node):
     """
@@ -144,8 +142,16 @@ def representer(dumper, data):
 
     return dumper.represent_scalar(tag, data)
 
+def scalar_representer(dumper, value):
+    style = None
+
+    if "\n" in value:
+        style = "\""
+
+    return dumper.represent_scalar(TAG_STRING, value, style=style)
+
 # Customise our yaml
-CustomDumper.add_representer(six.text_type, lambda dumper, value: dumper.represent_scalar(TAG_STRING, value))
+CustomDumper.add_representer(six.text_type, scalar_representer)
 CustomLoader.add_constructor(TAG_MAP, construct_mapping)
 CustomLoader.add_multi_constructor("!", multi_constructor)
 CustomDumper.add_representer(collections.OrderedDict, representer)
