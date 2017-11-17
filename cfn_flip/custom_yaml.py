@@ -133,7 +133,8 @@ def representer(dumper, data):
     data = data[key]
 
     if tag == "!GetAtt":
-        data = ".".join(data)
+        if isinstance(data, list):
+            data = ".".join(data)
 
     if isinstance(data, dict):
         return dumper.represent_mapping(tag, data, flow_style=False)
