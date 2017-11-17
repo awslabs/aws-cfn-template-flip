@@ -205,6 +205,27 @@ class CfnFlipTestCase(unittest.TestCase):
 
         self.assertEqual(cfn_flip.to_yaml(data), expected)
 
+    def test_flip_to_yaml_with_dotted_getatt(self):
+        """
+        Even though documentation does not suggest Resource.Value is valid
+        we should support it anyway as cloudformation allows it :)
+        """
+
+        data = """
+        [
+            {
+                "Fn::GetAtt": "One.Two"
+            },
+            {
+                "Fn::GetAtt": "Three.Four.Five"
+            }
+        ]
+        """
+
+        expected = "- !GetAtt 'One.Two'\n- !GetAtt 'Three.Four.Five'\n"
+
+        self.assertEqual(cfn_flip.to_yaml(data), expected)
+
     def test_flip_to_json_with_multi_level_getatt(self):
         """
         Test that we correctly convert multi-level Fn::GetAtt
