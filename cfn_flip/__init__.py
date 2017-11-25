@@ -1,19 +1,27 @@
-"""                                                                                                      
-Copyright 2016-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.                                  
-                                                                                                         
-Licensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with the License. A copy of the License is located at                                              
-                                                                                                         
-    http://aws.amazon.com/apache2.0/                                                                     
-                                                                                                         
-or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.                                                 
-"""
+# Copyright 2016-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License").
+# You may not use this file except in compliance with the License.
+# A copy of the License is located at
+#
+#     http://aws.amazon.com/apache2.0/
+#
+# or in the "license" file accompanying this file.
+#
+# This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+# CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import collections
+import json
+
+import yaml
 
 from .clean import clean
 from .custom_json import DateTimeAwareJsonEncoder
 from .custom_yaml import dumper_generator, CustomLoader
-import collections
-import json
-import yaml
+
 
 def _load_json(template):
     """
@@ -25,6 +33,7 @@ def _load_json(template):
     except ValueError:
         raise Exception("Invalid JSON")
 
+
 def _load_yaml(template):
     """
     We've decided it's YAML, so let's try to load it
@@ -34,6 +43,7 @@ def _load_yaml(template):
         return yaml.load(template, Loader=CustomLoader)
     except:
         raise Exception("Invalid YAML")
+
 
 def _load(template):
     """
@@ -47,6 +57,7 @@ def _load(template):
         data = _load_yaml(template)
         return data, "yaml"
 
+
 def _dump_json(data):
     """
     Output some JSON
@@ -54,12 +65,14 @@ def _dump_json(data):
 
     return json.dumps(data, indent=4, cls=DateTimeAwareJsonEncoder)
 
+
 def _dump_yaml(data, clean_up=False, long_form=False):
     """
     Output some YAML
     """
 
     return yaml.dump(data, Dumper=dumper_generator(clean_up, long_form), default_flow_style=False)
+
 
 def to_json(template, clean_up=False):
     """
@@ -73,6 +86,7 @@ def to_json(template, clean_up=False):
 
     return _dump_json(data)
 
+
 def to_yaml(template, clean_up=False):
     """
     Assume the input is JSON and convert to YAML
@@ -84,6 +98,7 @@ def to_yaml(template, clean_up=False):
         data = clean(data)
 
     return _dump_yaml(data, clean_up)
+
 
 def flip(template, out_format=None, clean_up=False, no_flip=False, long_form=False):
     """
