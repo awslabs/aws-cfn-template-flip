@@ -30,7 +30,10 @@ def _load_yaml(template):
     We've decided it's YAML, so let's try to load it
     """
 
-    return yaml.load(template, Loader=CustomLoader)
+    try:
+        return yaml.load(template, Loader=CustomLoader)
+    except:
+        raise Exception("Invalid YAML")
 
 def _load(template):
     """
@@ -105,7 +108,7 @@ def flip(template, out_format=None, clean_up=False, no_flip=False):
         try:
             data, in_format = _load(template)
         except Exception as e:
-            raise Exception("Could not determine the input format: {}".format(e))
+            raise Exception("Could not determine the input format")
 
     if no_flip:
         out_format = in_format
