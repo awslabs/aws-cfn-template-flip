@@ -59,7 +59,7 @@ class ReplaceJoinTestCase(unittest.TestCase):
 
     def test_get_att(self):
         """
-        Base64 etc should be replaced by parameters to Sub
+        Intrinsics should be replaced by parameters to Sub
         """
 
         source = {
@@ -79,7 +79,7 @@ class ReplaceJoinTestCase(unittest.TestCase):
 
     def test_multi_level_get_att(self):
         """
-        Base64 etc should be replaced by parameters to Sub
+        Intrinsics should be replaced by parameters to Sub
         """
 
         source = {
@@ -180,6 +180,65 @@ class ReplaceJoinTestCase(unittest.TestCase):
         }
 
         expected = "The ${!cake} is a lie"
+
+        actual = cfn_flip.clean(source)
+
+        self.assertEqual(expected, actual)
+
+    def test_nested_join(self):
+        """
+        Test that a join of joins works correctly
+        """
+
+        source = {
+            "Fn::Join": [
+                " ",
+                ["The", "cake", {
+                    "Fn::Join": [
+                        " ",
+                        ["is", "a"],
+                    ],
+                }, "lie"],
+            ],
+        }
+
+        expected = "The cake is a lie"
+
+        actual = cfn_flip.clean(source)
+
+        self.assertEqual(expected, actual)
+
+    def test_deep_nested_join(self):
+        """
+        Test that a join works correctly when inside an intrinsic, inside a join
+        """
+
+        source = {
+            "Fn::Join": [
+                " ",
+                ["The", "cake", "is", "a", {
+                    "Fn::ImportValue": {
+                        "Fn::Join": [
+                            "-",
+                            [{"Ref": "lieStack"}, "lieValue"],
+                        ]
+                    },
+                }],
+            ],
+        }
+
+        expected = {
+            "Fn::Sub": [
+                "The cake is a ${Param1}",
+                {
+                    "Param1": {
+                        "Fn::ImportValue": {
+                            "Fn::Sub": "${lieStack}-lieValue",
+                        },
+                    },
+                },
+            ]
+        }
 
         actual = cfn_flip.clean(source)
 

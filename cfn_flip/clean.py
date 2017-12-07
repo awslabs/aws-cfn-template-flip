@@ -20,6 +20,8 @@ def convert_join(sep, parts):
     args = {}
 
     for i, part in enumerate(parts):
+        part = clean(part)
+
         if isinstance(part, dict):
             plain_string = False
 
@@ -30,7 +32,7 @@ def convert_join(sep, parts):
                 parts[i] = "${{{}}}".format(".".join(params))
             else:
                 param_name = "Param{}".format(len(args) + 1)
-                args[param_name] = clean(part)
+                args[param_name] = part
                 parts[i] = "${{{}}}".format(param_name)
 
         else:
