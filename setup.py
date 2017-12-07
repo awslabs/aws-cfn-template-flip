@@ -8,7 +8,7 @@ Licensed under the Apache License, Version 2.0 (the "License"). You may not use 
 or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name="cfn_flip",
@@ -18,8 +18,9 @@ setup(
     author="Steve Engledow",
     author_email="sengledo@amazon.co.uk",
     license="Apache2",
-    packages=["cfn_flip"],
+    packages=find_packages(),
     install_requires=[
+        "Click",
         "PyYAML",
         "six",
     ],

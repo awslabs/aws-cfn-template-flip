@@ -9,45 +9,28 @@ or in the "license" file accompanying this file. This file is distributed on an 
 """
 
 from . import flip
-import argparse
+import click
 import sys
 
-def main():
+@click.command()
+@click.option("--json", "-j", "out_format", flag_value="json", help="Convert to JSON. Assume the input is YAML.")
+@click.option("--yaml", "-y", "out_format", flag_value="yaml", help="Convert to YAML. Assume the input is JSON.")
+@click.option("--no-flip", "-n", is_flag=True, help="Don't convert. You can use this to validate or just clean a template without converting it. If you use -n in conjunction with -j or -y, the input format is assumed to be the same as the output format you specify.")
+@click.option("--clean", "-c", is_flag=True, help="Performs some opinionated cleanup on your template. For now, this just converts uses of Fn::Join to Fn::Sub.")
+@click.argument("input", type=click.File("r"), default=sys.stdin)
+@click.argument("output", type=click.File("w"), default=sys.stdout)
+def main(out_format, no_flip, clean, input, output):
     """
-    Figure out the input and output stream
-    Then figure out the input format and set the opposing output format
+    AWS CloudFormation Template Flip is a tool that converts
+    AWS CloudFormation templates between JSON and YAML formats,
+    making use of the YAML format's short function syntax where possible."
     """
-
-    # Set up the arg parser
-    parser = argparse.ArgumentParser(description="AWS CloudFormation Template Flip is a tool that converts AWS CloudFormation templates between JSON and YAML formats, making use of the YAML format's short function syntax where possible.")
-
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument("-j", "--json", action="store_true", help="Convert to JSON. Assume the input is YAML.")
-    group.add_argument("-y", "--yaml", action="store_true", help="Convert to YAML. Assume the input is JSON.")
-
-    parser.add_argument("-n", "--no-flip", action="store_true", help="Don't convert. You can use this to validate or just clean a template without converting it. If you use -n in conjunction with -j or -y, the input format is assumed to be the same as the output format you specify.")
-    parser.add_argument("-c", "--clean", action="store_true", help="Performs some opinionated cleanup on your template. For now, this just converts uses of Fn::Join to Fn::Sub.")
-
-    parser.add_argument("input", nargs="?", type=argparse.FileType("r"), default=sys.stdin, help="File to read from. If you do not supply a file, input will be read from stdin.")
-    parser.add_argument("output", nargs="?", type=argparse.FileType("w"), default=sys.stdout, help="File to write to. If you do not supply a file, output will be written to stdout.")
-
-    args = parser.parse_args()
-
-    template = args.input.read()
-
-    out_format = None
-
-    if args.json:
-        out_format = "json"
-    elif args.yaml:
-        out_format = "yaml"
 
     try:
-        args.output.write(flip(template,
+        output.write(flip(input.read(),
             out_format=out_format,
-            clean_up=args.clean,
-            no_flip=args.no_flip
+            clean_up=clean,
+            no_flip=no_flip
         ))
     except Exception as e:
-        sys.stderr.write("{}\n".format(str(e)))
-        sys.exit(1)
+        raise click.ClickException("{}".format(e))
