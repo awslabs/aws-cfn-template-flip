@@ -8,12 +8,12 @@ Licensed under the Apache License, Version 2.0 (the "License"). You may not use 
 or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """
 
-import cfn_flip
 from cfn_flip.custom_yaml import CustomLoader
+import cfn_flip
 import json
+import six
 import unittest
 import yaml
-
 
 class CfnFlipTestCase(unittest.TestCase):
     def setUp(self):
@@ -87,7 +87,7 @@ class CfnFlipTestCase(unittest.TestCase):
         Yaml is not valid json
         """
 
-        with self.assertRaisesRegexp(Exception, "Invalid JSON"):
+        with six.assertRaisesRegex(self, Exception, "Invalid JSON"):
             actual = cfn_flip.to_yaml(self.input_yaml)
 
     def test_flip_to_json(self):
@@ -149,7 +149,7 @@ class CfnFlipTestCase(unittest.TestCase):
         Test that flip fails with an error message when passed bad data
         """
 
-        with self.assertRaisesRegexp(Exception, self.fail_message):
+        with six.assertRaisesRegex(self, Exception, self.fail_message):
             cfn_flip.flip(self.bad_data)
 
     def test_flip_to_json_with_datetimes(self):
@@ -381,7 +381,7 @@ class CfnFlipTestCase(unittest.TestCase):
         and YAML input should be rejected
         """
 
-        with self.assertRaisesRegexp(Exception, "Invalid JSON"):
+        with six.assertRaisesRegex(self, Exception, "Invalid JSON"):
             cfn_flip.flip(self.input_yaml, out_format="yaml")
 
     def test_explicit_yaml_rejects_bad_yaml(self):
@@ -391,5 +391,5 @@ class CfnFlipTestCase(unittest.TestCase):
         and YAML input should be rejected
         """
 
-        with self.assertRaisesRegexp(Exception, "Invalid YAML"):
+        with six.assertRaisesRegex(self, Exception, "Invalid YAML"):
             cfn_flip.flip(self.bad_data, out_format="json")
