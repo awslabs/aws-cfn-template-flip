@@ -41,7 +41,7 @@ class CfnFlipTestCase(unittest.TestCase):
 
         self.bad_data = "<!DOCTYPE html>\n\n<html>\n\tThis isn't right!\n</html>"
 
-        self.fail_message = "Could not determine the input format: .+"
+        self.fail_message = "Could not determine the input format"
 
     def test_to_json_with_yaml(self):
         """
@@ -87,7 +87,7 @@ class CfnFlipTestCase(unittest.TestCase):
         Yaml is not valid json
         """
 
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegexp(Exception, "Invalid JSON"):
             actual = cfn_flip.to_yaml(self.input_yaml)
 
     def test_flip_to_json(self):
@@ -305,3 +305,91 @@ class CfnFlipTestCase(unittest.TestCase):
         actual = cfn_flip.to_yaml(source)
 
         self.assertEqual(expected, actual)
+
+    def test_flip_with_json_output(self):
+        """
+        We should be able to specify that the output is JSON
+        """
+
+        actual = cfn_flip.flip(self.input_yaml, out_format="json")
+
+        parsed_actual = json.loads(actual)
+
+        self.assertDictEqual(parsed_actual, self.parsed_json)
+
+    def test_flip_with_yaml_output(self):
+        """
+        We should be able to specify that the output is YAML
+        """
+
+        actual = cfn_flip.flip(self.input_json, out_format="yaml")
+
+        parsed_actual = yaml.load(actual, Loader=CustomLoader)
+
+        self.assertDictEqual(parsed_actual, self.parsed_yaml)
+
+    def test_no_flip_with_json(self):
+        """
+        We should be able to submit JSON and get JSON back
+        """
+
+        actual = cfn_flip.flip(self.input_json, no_flip=True)
+
+        parsed_actual = json.loads(actual)
+
+        self.assertDictEqual(parsed_actual, self.parsed_json)
+
+    def test_no_flip_with_yaml(self):
+        """
+        We should be able to submit YAML and get YAML back
+        """
+
+        actual = cfn_flip.flip(self.input_yaml, no_flip=True)
+
+        parsed_actual = yaml.load(actual, Loader=CustomLoader)
+
+        self.assertDictEqual(parsed_actual, self.parsed_yaml)
+
+    def test_no_flip_with_explicit_json(self):
+        """
+        We should be able to submit JSON and get JSON back
+        and specify the output format explicity
+        """
+
+        actual = cfn_flip.flip(self.input_json, out_format="json", no_flip=True)
+
+        parsed_actual = json.loads(actual)
+
+        self.assertDictEqual(parsed_actual, self.parsed_json)
+
+    def test_no_flip_with_explicit_yaml(self):
+        """
+        We should be able to submit YAML and get YAML back
+        and specify the output format explicity
+        """
+
+        actual = cfn_flip.flip(self.input_yaml, out_format="yaml", no_flip=True)
+
+        parsed_actual = yaml.load(actual, Loader=CustomLoader)
+
+        self.assertDictEqual(parsed_actual, self.parsed_yaml)
+
+    def test_explicit_json_rejects_yaml(self):
+        """
+        Given an output format of YAML
+        The input format should be assumed to be JSON
+        and YAML input should be rejected
+        """
+
+        with self.assertRaisesRegexp(Exception, "Invalid JSON"):
+            cfn_flip.flip(self.input_yaml, out_format="yaml")
+
+    def test_explicit_yaml_rejects_bad_yaml(self):
+        """
+        Given an output format of YAML
+        The input format should be assumed to be JSON
+        and YAML input should be rejected
+        """
+
+        with self.assertRaisesRegexp(Exception, "Invalid YAML"):
+            cfn_flip.flip(self.bad_data, out_format="json")
