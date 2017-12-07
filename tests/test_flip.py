@@ -87,7 +87,7 @@ class CfnFlipTestCase(unittest.TestCase):
         Yaml is not valid json
         """
 
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegexp(Exception, "Invalid JSON"):
             actual = cfn_flip.to_yaml(self.input_yaml)
 
     def test_flip_to_json(self):

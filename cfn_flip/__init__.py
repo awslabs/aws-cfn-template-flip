@@ -15,44 +15,109 @@ import collections
 import json
 import yaml
 
-
-def to_json(template, clean_up=False):
+def _load_json(template):
     """
-    Convert the data to json
-    undoing yaml short syntax where detected
+    We've decided it's JSON, so let's try to load it
     """
 
-    data = yaml.load(template, Loader=CustomLoader)
+    try:
+        return json.loads(template, object_pairs_hook=collections.OrderedDict)
+    except ValueError:
+        raise Exception("Invalid JSON")
 
-    if clean_up:
-        data = clean(data)
+def _load_yaml(template):
+    """
+    We've decided it's YAML, so let's try to load it
+    """
+
+    return yaml.load(template, Loader=CustomLoader)
+
+def _load(template):
+    """
+    Try to guess the input format
+    """
+
+    try:
+        data = _load_json(template)
+        return data, "json"
+    except:
+        data = _load_yaml(template)
+        return data, "yaml"
+
+def _dump_json(data):
+    """
+    Output some JSON
+    """
 
     return json.dumps(data, indent=4, cls=DateTimeAwareJsonEncoder)
 
-def to_yaml(template, clean_up=False):
+def _dump_yaml(data):
     """
-    Convert the data to yaml
-    using yaml short syntax for functions where possible
+    Output some YAML
     """
 
-    data = json.loads(template, object_pairs_hook=collections.OrderedDict)
+    return yaml.dump(data, Dumper=CustomDumper, default_flow_style=False)
+
+def to_json(template, clean_up=False):
+    """
+    Assume the input is YAML and convert to JSON
+    """
+
+    data = _load_yaml(template)
 
     if clean_up:
         data = clean(data)
 
-    return yaml.dump(data, Dumper=CustomDumper, default_flow_style=False)
+    return _dump_json(data)
 
-def flip(template, clean_up=False):
+def to_yaml(template, clean_up=False):
+    """
+    Assume the input is JSON and convert to YAML
+    """
+
+    data = _load_json(template)
+
+    if clean_up:
+        data = clean(data)
+
+    return _dump_yaml(data)
+
+def flip(template, out_format=None, clean_up=False, no_flip=False):
     """
     Figure out the input format and convert the data to the opposing output format
     """
 
-    try:
-        return to_yaml(template, clean_up)
-    except ValueError:
-        pass  # Hand over to the yaml parser
+    data = None
+    in_format = None
 
-    try:
-        return to_json(template, clean_up)
-    except Exception as e:
-        raise Exception("Could not determine the input format: {}", e)
+    if no_flip:
+        in_format = out_format
+    elif out_format == "json":
+        in_format = "yaml"
+    elif out_format == "yaml":
+        in_format = "json"
+
+    if in_format == "json":
+        data = _load_json(template)
+    elif in_format == "yaml":
+        data = _load_yaml(template)
+    else:
+        try:
+            data, in_format = _load(template)
+        except Exception as e:
+            raise Exception("Could not determine the input format: {}".format(e))
+
+    if no_flip:
+        out_format = in_format
+    elif in_format == "json":
+        out_format = "yaml"
+    else:
+        out_format = "json"
+
+    if clean_up:
+        data = clean(data)
+
+    if out_format == "json":
+        return _dump_json(data)
+
+    return _dump_yaml(data)
