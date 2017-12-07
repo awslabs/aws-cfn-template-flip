@@ -20,6 +20,8 @@ def convert_join(sep, parts):
     args = {}
 
     for i, part in enumerate(parts):
+        part = clean(part)
+
         if isinstance(part, dict):
             plain_string = False
 
