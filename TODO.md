@@ -1,3 +1,3 @@
 # To do
 
-* Bring in tox
+* Consider pytest

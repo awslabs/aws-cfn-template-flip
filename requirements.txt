@@ -1,3 +1,4 @@
 Click
 PyYAML
 six
+tox
