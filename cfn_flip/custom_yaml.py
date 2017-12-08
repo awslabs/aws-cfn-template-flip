@@ -1,21 +1,27 @@
-"""
-Copyright 2016-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# Copyright 2016-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License").
+# You may not use this file except in compliance with the License.
+# A copy of the License is located at
+#
+#     http://aws.amazon.com/apache2.0/
+#
+# or in the "license" file accompanying this file.
+#
+# This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+# CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-Licensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with the License. A copy of the License is located at
-
-    http://aws.amazon.com/apache2.0/
-
-or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-"""
+import collections
 
 import six
-import collections
 import yaml
-
 
 TAG_MAP = "tag:yaml.org,2002:map"
 TAG_STRING = "tag:yaml.org,2002:str"
 UNCONVERTED_SUFFIXES = ["Ref", "Condition"]
+
 
 class CustomDumper(yaml.Dumper):
     """
@@ -23,12 +29,14 @@ class CustomDumper(yaml.Dumper):
     ("  - entry"  vs "- entry").
     Causes fewer problems with validation and tools.
     """
-  
+
     def increase_indent(self, flow=False, indentless=False):
-        return super(CustomDumper,self).increase_indent(flow, False)
+        return super(CustomDumper, self).increase_indent(flow, False)
+
 
 class CustomLoader(yaml.Loader):
     pass
+
 
 def multi_constructor(loader, tag_suffix, node):
     """
@@ -51,9 +59,8 @@ def multi_constructor(loader, tag_suffix, node):
     else:
         raise "Bad tag: !{}".format(tag_suffix)
 
-    return  {
-        tag_suffix: constructor(node)
-    }
+    return {tag_suffix: constructor(node)}
+
 
 def construct_getatt(node):
     """
@@ -66,6 +73,7 @@ def construct_getatt(node):
         return [s.value for s in node.value]
     else:
         raise ValueError("Unexpected node type: {}".format(type(node.value)))
+
 
 def construct_mapping(self, node, deep=False):
     """
@@ -82,6 +90,7 @@ def construct_mapping(self, node, deep=False):
 
     return mapping
 
+
 class odict_items(list):
     """
     Helper class to ensure ordering is preserved
@@ -91,7 +100,9 @@ class odict_items(list):
         new_items = []
 
         for item in items:
+
             class C(type(item)):
+
                 def __lt__(self, *args, **kwargs):
                     return False
 
@@ -102,14 +113,18 @@ class odict_items(list):
     def sort(self):
         pass
 
+
 class ODict(collections.OrderedDict):
+
     def __init__(self, *args, **kwargs):
         super(ODict, self).__init__(*args, **kwargs)
 
         items = odict_items(self.items())
         self.items = lambda: items
 
+
 def representer_generator(long_form=False):
+
     def representer(dumper, data):
         """
         Deal with !Ref style function format and OrderedDict
@@ -146,7 +161,9 @@ def representer_generator(long_form=False):
 
     return representer
 
+
 def scalar_representer_generator(clean_up=False):
+
     def scalar_representer(dumper, value):
         style = None
 
@@ -157,11 +174,14 @@ def scalar_representer_generator(clean_up=False):
 
     return scalar_representer
 
+
 # Customise our loader
 CustomLoader.add_constructor(TAG_MAP, construct_mapping)
 CustomLoader.add_multi_constructor("!", multi_constructor)
 
+
 def dumper_generator(clean_up=False, long_form=False):
+
     class Dumper(CustomDumper):
         pass
 
