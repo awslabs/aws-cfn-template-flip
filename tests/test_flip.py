@@ -11,385 +11,384 @@ or in the "license" file accompanying this file. This file is distributed on an 
 from cfn_flip.custom_yaml import CustomLoader
 import cfn_flip
 import json
-import six
-import unittest
+import pytest
 import yaml
 
-class CfnFlipTestCase(unittest.TestCase):
-    def setUp(self):
-        """
-        Load in the examples and pre-parse the expected results
-        """
+@pytest.fixture
+def input_json():
+    with open("examples/test.json", "r") as f:
+        return f.read()
 
-        with open("examples/test.json", "r") as f:
-            self.input_json = f.read()
+@pytest.fixture
+def input_yaml():
+    with open("examples/test.yaml", "r") as f:
+        return f.read()
 
-        with open("examples/test.yaml", "r") as f:
-            self.input_yaml = f.read()
+@pytest.fixture
+def clean_json():
+    with open("examples/clean.json", "r") as f:
+        return f.read()
 
-        with open("examples/clean.json", "r") as f:
-            self.clean_json = f.read()
+@pytest.fixture
+def clean_yaml():
+    with open("examples/clean.yaml", "r") as f:
+        return f.read()
 
-        with open("examples/clean.yaml", "r") as f:
-            self.clean_yaml = f.read()
+@pytest.fixture
+def parsed_json():
+    return json.loads(input_json())
 
-        self.parsed_json = json.loads(self.input_json)
-        self.parsed_yaml = yaml.load(self.input_yaml, Loader=CustomLoader)
+@pytest.fixture
+def parsed_yaml():
+    return yaml.load(input_yaml(), Loader=CustomLoader)
 
-        self.parsed_clean_json = json.loads(self.clean_json)
-        self.parsed_clean_yaml = yaml.load(self.clean_yaml, Loader=CustomLoader)
+@pytest.fixture
+def parsed_clean_json():
+    return json.loads(clean_json())
 
-        self.bad_data = "<!DOCTYPE html>\n\n<html>\n\tThis isn't right!\n</html>"
+@pytest.fixture
+def parsed_clean_yaml():
+    return yaml.load(clean_yaml(), Loader=CustomLoader)
 
-        self.fail_message = "Could not determine the input format"
+@pytest.fixture
+def bad_data():
+    return "<!DOCTYPE html>\n\n<html>\n\tThis isn't right!\n</html>"
 
-    def test_to_json_with_yaml(self):
-        """
-        Test that to_json performs correctly
-        """
+@pytest.fixture
+def fail_message():
+    return "Could not determine the input format"
 
-        actual = cfn_flip.to_json(self.input_yaml)
+def test_to_json_with_yaml(input_yaml, parsed_json):
+    """
+    Test that to_json performs correctly
+    """
 
-        parsed_actual = json.loads(actual)
+    actual = cfn_flip.to_json(input_yaml)
+    assert json.loads(actual) == parsed_json
 
-        self.assertDictEqual(parsed_actual, self.parsed_json)
+def test_to_json_with_json(input_json, parsed_json):
+    """
+    Test that to_json still works when passed json
+    (All json is valid yaml)
+    """
 
-    def test_to_json_with_json(self):
-        """
-        Test that to_json still works when passed json
-        (All json is valid yaml)
-        """
+    actual = cfn_flip.to_json(input_json)
 
-        actual = cfn_flip.to_json(self.input_json)
+    assert json.loads(actual) == parsed_json
 
-        parsed_actual = json.loads(actual)
+def test_to_yaml_with_json(input_json, parsed_yaml):
+    """
+    Test that to_yaml performs correctly
+    """
 
-        self.assertDictEqual(parsed_actual, self.parsed_json)
+    actual = cfn_flip.to_yaml(input_json)
 
-    def test_to_yaml_with_json(self):
-        """
-        Test that to_yaml performs correctly
-        """
+    # The result should not parse as json
+    with pytest.raises(ValueError):
+        json.loads(actual)
 
-        actual = cfn_flip.to_yaml(self.input_json)
+    parsed_actual = yaml.load(actual, Loader=CustomLoader)
 
-        # The result should not parse as json
-        with self.assertRaises(ValueError):
-            json.loads(actual)
+    assert parsed_actual == parsed_yaml
 
-        parsed_actual = yaml.load(actual, Loader=CustomLoader)
+def test_to_yaml_with_yaml(input_yaml):
+    """
+    Test that to_yaml fails with a ValueError when passed yaml
+    Yaml is not valid json
+    """
 
-        self.assertDictEqual(parsed_actual, self.parsed_yaml)
+    with pytest.raises(Exception, message="Invalid JSON"):
+        cfn_flip.to_yaml(input_yaml)
 
-    def test_to_yaml_with_yaml(self):
-        """
-        Test that to_yaml fails with a ValueError when passed yaml
-        Yaml is not valid json
-        """
+def test_flip_to_json(input_yaml, parsed_json):
+    """
+    Test that flip performs correctly transforming from yaml to json
+    """
 
-        with six.assertRaisesRegex(self, Exception, "Invalid JSON"):
-            actual = cfn_flip.to_yaml(self.input_yaml)
+    actual = cfn_flip.flip(input_yaml)
 
-    def test_flip_to_json(self):
-        """
-        Test that flip performs correctly transforming from yaml to json
-        """
+    assert json.loads(actual) == parsed_json
 
-        actual = cfn_flip.flip(self.input_yaml)
+def test_flip_to_yaml(input_json, parsed_yaml):
+    """
+    Test that flip performs correctly transforming from json to yaml
+    """
 
-        parsed_actual = json.loads(actual)
+    actual = cfn_flip.flip(input_json)
 
-        self.assertDictEqual(parsed_actual, self.parsed_json)
+    # The result should not parse as json
+    with pytest.raises(ValueError):
+        json.loads(actual)
 
-    def test_flip_to_yaml(self):
-        """
-        Test that flip performs correctly transforming from json to yaml
-        """
+    parsed_actual = yaml.load(actual, Loader=CustomLoader)
 
-        actual = cfn_flip.flip(self.input_json)
+    assert parsed_actual == parsed_yaml
 
-        # The result should not parse as json
-        with self.assertRaises(ValueError):
-            json.loads(actual)
+def test_flip_to_clean_json(input_yaml, parsed_clean_json):
+    """
+    Test that flip performs correctly transforming from yaml to json
+    and the `clean_up` flag is active
+    """
 
-        parsed_actual = yaml.load(actual, Loader=CustomLoader)
+    actual = cfn_flip.flip(input_yaml, clean_up=True)
 
-        self.assertDictEqual(parsed_actual, self.parsed_yaml)
+    assert json.loads(actual) ==  parsed_clean_json
 
-    def test_flip_to_clean_json(self):
-        """
-        Test that flip performs correctly transforming from yaml to json
-        and the `clean_up` flag is active
-        """
+def test_flip_to_clean_yaml(input_json, parsed_clean_yaml):
+    """
+    Test that flip performs correctly transforming from json to yaml
+    and the `clean_up` flag is active
+    """
 
-        actual = cfn_flip.flip(self.input_yaml, clean_up=True)
+    actual = cfn_flip.flip(input_json, clean_up=True)
 
-        parsed_actual = json.loads(actual)
+    # The result should not parse as json
+    with pytest.raises(ValueError):
+        json.loads(actual)
 
-        self.assertDictEqual(parsed_actual, self.parsed_clean_json)
+    parsed_actual = yaml.load(actual, Loader=CustomLoader)
 
-    def test_flip_to_clean_yaml(self):
-        """
-        Test that flip performs correctly transforming from json to yaml
-        and the `clean_up` flag is active
-        """
+    assert parsed_actual == parsed_clean_yaml
 
-        actual = cfn_flip.flip(self.input_json, clean_up=True)
+def test_flip_with_bad_data(fail_message, bad_data):
+    """
+    Test that flip fails with an error message when passed bad data
+    """
 
-        # The result should not parse as json
-        with self.assertRaises(ValueError):
-            json.loads(actual)
+    with pytest.raises(Exception, message=fail_message):
+        cfn_flip.flip(bad_data)
 
-        parsed_actual = yaml.load(actual, Loader=CustomLoader)
+def test_flip_to_json_with_datetimes():
+    """
+    Test that the json encoder correctly handles dates and datetimes
+    """
 
-        self.assertDictEqual(parsed_actual, self.parsed_clean_yaml)
+    from datetime import date, datetime, time
 
-    def test_flip_with_bad_data(self):
-        """
-        Test that flip fails with an error message when passed bad data
-        """
+    tricky_data = """
+    a date: 2017-03-02
+    a datetime: 2017-03-02 19:52:00
+    """
 
-        with six.assertRaisesRegex(self, Exception, self.fail_message):
-            cfn_flip.flip(self.bad_data)
+    actual = cfn_flip.to_json(tricky_data)
 
-    def test_flip_to_json_with_datetimes(self):
-        """
-        Test that the json encoder correctly handles dates and datetimes
-        """
+    parsed_actual = json.loads(actual)
 
-        from datetime import date, datetime, time
+    assert parsed_actual == {
+        "a date": "2017-03-02",
+        "a datetime": "2017-03-02T19:52:00",
+    }
 
-        tricky_data = """
-        a date: 2017-03-02
-        a datetime: 2017-03-02 19:52:00
-        """
+def test_flip_to_yaml_with_clean_getatt():
+    """
+    The clean flag should convert Fn::GetAtt to its short form
+    """
 
-        actual = cfn_flip.to_json(tricky_data)
+    data = """
+    {
+        "Fn::GetAtt": ["Left", "Right"]
+    }
+    """
 
-        parsed_actual = json.loads(actual)
+    expected = "!GetAtt 'Left.Right'\n"
 
-        self.assertDictEqual(parsed_actual, {
-            "a date": "2017-03-02",
-            "a datetime": "2017-03-02T19:52:00",
-        })
+    assert cfn_flip.to_yaml(data, clean_up=False) == expected
+    assert cfn_flip.to_yaml(data, clean_up=True) == expected
 
-    def test_flip_to_yaml_with_clean_getatt(self):
-        """
-        The clean flag should convert Fn::GetAtt to its short form
-        """
+def test_flip_to_yaml_with_multi_level_getatt():
+    """
+    Test that we correctly convert multi-level Fn::GetAtt
+    from JSON to YAML format
+    """
 
-        data = """
+    data = """
+    {
+        "Fn::GetAtt": ["First", "Second", "Third"]
+    }
+    """
+
+    expected = "!GetAtt 'First.Second.Third'\n"
+
+    assert cfn_flip.to_yaml(data) == expected
+
+def test_flip_to_yaml_with_dotted_getatt():
+    """
+    Even though documentation does not suggest Resource.Value is valid
+    we should support it anyway as cloudformation allows it :)
+    """
+
+    data = """
+    [
         {
-            "Fn::GetAtt": ["Left", "Right"]
-        }
-        """
-
-        expected = "!GetAtt 'Left.Right'\n"
-
-        self.assertEqual(cfn_flip.to_yaml(data, clean_up=False), expected)
-        self.assertEqual(cfn_flip.to_yaml(data, clean_up=True), expected)
-
-    def test_flip_to_yaml_with_multi_level_getatt(self):
-        """
-        Test that we correctly convert multi-level Fn::GetAtt
-        from JSON to YAML format
-        """
-
-        data = """
+            "Fn::GetAtt": "One.Two"
+        },
         {
-            "Fn::GetAtt": ["First", "Second", "Third"]
+            "Fn::GetAtt": "Three.Four.Five"
         }
-        """
+    ]
+    """
 
-        expected = "!GetAtt 'First.Second.Third'\n"
+    expected = "- !GetAtt 'One.Two'\n- !GetAtt 'Three.Four.Five'\n"
 
-        self.assertEqual(cfn_flip.to_yaml(data), expected)
+    assert cfn_flip.to_yaml(data) == expected
 
-    def test_flip_to_yaml_with_dotted_getatt(self):
-        """
-        Even though documentation does not suggest Resource.Value is valid
-        we should support it anyway as cloudformation allows it :)
-        """
+def test_flip_to_json_with_multi_level_getatt():
+    """
+    Test that we correctly convert multi-level Fn::GetAtt
+    from YAML to JSON format
+    """
 
-        data = """
-        [
-            {
-                "Fn::GetAtt": "One.Two"
-            },
-            {
-                "Fn::GetAtt": "Three.Four.Five"
-            }
-        ]
-        """
+    data = "!GetAtt 'First.Second.Third'\n"
 
-        expected = "- !GetAtt 'One.Two'\n- !GetAtt 'Three.Four.Five'\n"
+    expected = {
+        "Fn::GetAtt": ["First", "Second", "Third"]
+    }
 
-        self.assertEqual(cfn_flip.to_yaml(data), expected)
+    actual = cfn_flip.to_json(data, clean_up=True)
 
-    def test_flip_to_json_with_multi_level_getatt(self):
-        """
-        Test that we correctly convert multi-level Fn::GetAtt
-        from YAML to JSON format
-        """
+    assert json.loads(actual) == expected
 
-        data = "!GetAtt 'First.Second.Third'\n"
+def test_getatt_from_yaml():
+    """
+    Test that we correctly convert the short form of GetAtt
+    into the correct JSON format from YAML
+    """
 
-        expected = {
-            "Fn::GetAtt": ["First", "Second", "Third"]
+    source = """
+    - !GetAtt foo.bar
+    - Fn::GetAtt: [foo, bar]
+    """
+
+    expected = [
+        {"Fn::GetAtt": ["foo", "bar"]},
+        {"Fn::GetAtt": ["foo", "bar"]},
+    ]
+
+    # No clean
+    actual = cfn_flip.to_json(source, clean_up=False)
+    assert json.loads(actual) == expected
+
+    # With clean
+    actual = cfn_flip.to_json(source, clean_up=True)
+    assert json.loads(actual) == expected
+
+def test_flip_to_json_with_condition():
+    """
+    Test that the Condition key is correctly converted
+    """
+
+    source = """
+        MyAndCondition: !And
+        - !Equals ["sg-mysggroup", !Ref "ASecurityGroup"]
+        - !Condition SomeOtherCondition
+    """
+
+    expected = {
+        "MyAndCondition": {
+            "Fn::And": [
+                {"Fn::Equals": ["sg-mysggroup", {"Ref": "ASecurityGroup"}]},
+                {"Condition": "SomeOtherCondition"}
+            ]
         }
+    }
 
-        actual = cfn_flip.to_json(data, clean_up=True)
-        self.assertEqual(expected, json.loads(actual))
+    actual = cfn_flip.to_json(source, clean_up=True)
+    assert json.loads(actual) == expected
 
-    def test_getatt_from_yaml(self):
-        """
-        Test that we correctly convert the short form of GetAtt
-        into the correct JSON format from YAML
-        """
+def test_flip_to_yaml_with_newlines():
+    """
+    Test that strings containing newlines are quoted
+    """
 
-        source = """
-        - !GetAtt foo.bar
-        - Fn::GetAtt: [foo, bar]
-        """
+    source = r'["a", "b\n", "c\r\n", "d\r"]'
 
-        expected = [
-            {"Fn::GetAtt": ["foo", "bar"]},
-            {"Fn::GetAtt": ["foo", "bar"]},
-        ]
+    expected = "".join([
+        '- a\n',
+        '- "b\\n"\n',
+        '- "c\\r\\n"\n',
+        '- "d\\r"\n',
+    ])
 
-        # No clean
-        actual = cfn_flip.to_json(source, clean_up=False)
-        self.assertEqual(expected, json.loads(actual))
+    assert cfn_flip.to_yaml(source) == expected
 
-        # With clean
-        actual = cfn_flip.to_json(source, clean_up=True)
-        self.assertEqual(expected, json.loads(actual))
+def test_flip_with_json_output(input_yaml, parsed_json):
+    """
+    We should be able to specify that the output is JSON
+    """
 
-    def test_flip_to_json_with_condition(self):
-        """
-        Test that the Condition key is correctly converted
-        """
+    actual = cfn_flip.flip(input_yaml, out_format="json")
 
-        source = """
-            MyAndCondition: !And
-            - !Equals ["sg-mysggroup", !Ref "ASecurityGroup"]
-            - !Condition SomeOtherCondition
-        """
+    assert json.loads(actual) == parsed_json
 
-        expected = {
-            "MyAndCondition": {
-                "Fn::And": [
-                    {"Fn::Equals": ["sg-mysggroup", {"Ref": "ASecurityGroup"}]},
-                    {"Condition": "SomeOtherCondition"}
-                ]
-            }
-        }
+def test_flip_with_yaml_output(input_json, parsed_yaml):
+    """
+    We should be able to specify that the output is YAML
+    """
 
-        actual = cfn_flip.to_json(source, clean_up=True)
-        self.assertEqual(expected, json.loads(actual))
+    actual = cfn_flip.flip(input_json, out_format="yaml")
 
-    def test_flip_to_yaml_with_newlines(self):
-        """
-        Test that strings containing newlines are quoted
-        """
+    parsed_actual = yaml.load(actual, Loader=CustomLoader)
 
-        source = r'["a", "b\n", "c\r\n", "d\r"]'
+    assert parsed_actual == parsed_yaml
 
-        expected = "".join([
-            '- a\n',
-            '- "b\\n"\n',
-            '- "c\\r\\n"\n',
-            '- "d\\r"\n',
-        ])
+def test_no_flip_with_json(input_json, parsed_json):
+    """
+    We should be able to submit JSON and get JSON back
+    """
 
-        actual = cfn_flip.to_yaml(source)
+    actual = cfn_flip.flip(input_json, no_flip=True)
 
-        self.assertEqual(expected, actual)
+    assert json.loads(actual) == parsed_json
 
-    def test_flip_with_json_output(self):
-        """
-        We should be able to specify that the output is JSON
-        """
+def test_no_flip_with_yaml(input_yaml, parsed_yaml):
+    """
+    We should be able to submit YAML and get YAML back
+    """
 
-        actual = cfn_flip.flip(self.input_yaml, out_format="json")
+    actual = cfn_flip.flip(input_yaml, no_flip=True)
 
-        parsed_actual = json.loads(actual)
+    parsed_actual = yaml.load(actual, Loader=CustomLoader)
 
-        self.assertDictEqual(parsed_actual, self.parsed_json)
+    assert parsed_actual == parsed_yaml
 
-    def test_flip_with_yaml_output(self):
-        """
-        We should be able to specify that the output is YAML
-        """
+def test_no_flip_with_explicit_json(input_json, parsed_json):
+    """
+    We should be able to submit JSON and get JSON back
+    and specify the output format explicity
+    """
 
-        actual = cfn_flip.flip(self.input_json, out_format="yaml")
+    actual = cfn_flip.flip(input_json, out_format="json", no_flip=True)
 
-        parsed_actual = yaml.load(actual, Loader=CustomLoader)
+    assert json.loads(actual) == parsed_json
 
-        self.assertDictEqual(parsed_actual, self.parsed_yaml)
+def test_no_flip_with_explicit_yaml(input_yaml, parsed_yaml):
+    """
+    We should be able to submit YAML and get YAML back
+    and specify the output format explicity
+    """
 
-    def test_no_flip_with_json(self):
-        """
-        We should be able to submit JSON and get JSON back
-        """
+    actual = cfn_flip.flip(input_yaml, out_format="yaml", no_flip=True)
 
-        actual = cfn_flip.flip(self.input_json, no_flip=True)
+    parsed_actual = yaml.load(actual, Loader=CustomLoader)
 
-        parsed_actual = json.loads(actual)
+    assert parsed_actual == parsed_yaml
 
-        self.assertDictEqual(parsed_actual, self.parsed_json)
+def test_explicit_json_rejects_yaml(input_yaml):
+    """
+    Given an output format of YAML
+    The input format should be assumed to be JSON
+    and YAML input should be rejected
+    """
 
-    def test_no_flip_with_yaml(self):
-        """
-        We should be able to submit YAML and get YAML back
-        """
+    with pytest.raises(Exception, message="Invalid JSON"):
+        cfn_flip.flip(input_yaml, out_format="yaml")
 
-        actual = cfn_flip.flip(self.input_yaml, no_flip=True)
+def test_explicit_yaml_rejects_bad_yaml(bad_data):
+    """
+    Given an output format of YAML
+    The input format should be assumed to be JSON
+    and YAML input should be rejected
+    """
 
-        parsed_actual = yaml.load(actual, Loader=CustomLoader)
-
-        self.assertDictEqual(parsed_actual, self.parsed_yaml)
-
-    def test_no_flip_with_explicit_json(self):
-        """
-        We should be able to submit JSON and get JSON back
-        and specify the output format explicity
-        """
-
-        actual = cfn_flip.flip(self.input_json, out_format="json", no_flip=True)
-
-        parsed_actual = json.loads(actual)
-
-        self.assertDictEqual(parsed_actual, self.parsed_json)
-
-    def test_no_flip_with_explicit_yaml(self):
-        """
-        We should be able to submit YAML and get YAML back
-        and specify the output format explicity
-        """
-
-        actual = cfn_flip.flip(self.input_yaml, out_format="yaml", no_flip=True)
-
-        parsed_actual = yaml.load(actual, Loader=CustomLoader)
-
-        self.assertDictEqual(parsed_actual, self.parsed_yaml)
-
-    def test_explicit_json_rejects_yaml(self):
-        """
-        Given an output format of YAML
-        The input format should be assumed to be JSON
-        and YAML input should be rejected
-        """
-
-        with six.assertRaisesRegex(self, Exception, "Invalid JSON"):
-            cfn_flip.flip(self.input_yaml, out_format="yaml")
-
-    def test_explicit_yaml_rejects_bad_yaml(self):
-        """
-        Given an output format of YAML
-        The input format should be assumed to be JSON
-        and YAML input should be rejected
-        """
-
-        with six.assertRaisesRegex(self, Exception, "Invalid YAML"):
-            cfn_flip.flip(self.bad_data, out_format="json")
+    with pytest.raises(Exception, message="Invalid YAML"):
+        cfn_flip.flip(bad_data, out_format="json")
