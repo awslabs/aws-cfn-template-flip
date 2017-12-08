@@ -73,7 +73,7 @@ def to_json(template, clean_up=False):
 
     return _dump_json(data)
 
-def to_yaml(template, clean_up=False):
+def to_yaml(template, clean_up=False, long_form=False):
     """
     Assume the input is JSON and convert to YAML
     """
@@ -83,7 +83,7 @@ def to_yaml(template, clean_up=False):
     if clean_up:
         data = clean(data)
 
-    return _dump_yaml(data, clean_up)
+    return _dump_yaml(data, clean_up, long_form)
 
 def flip(template, out_format=None, clean_up=False, no_flip=False, long_form=False):
     """
