@@ -109,7 +109,7 @@ class ODict(collections.OrderedDict):
         items = odict_items(self.items())
         self.items = lambda: items
 
-def representer_generator(long_form=False):
+def representer_generator(long_form=False, clean_up=False):
     def representer(dumper, data):
         """
         Deal with !Ref style function format and OrderedDict
@@ -142,20 +142,23 @@ def representer_generator(long_form=False):
         elif isinstance(data, list):
             return dumper.represent_sequence(tag, data, flow_style=True)
 
-        return dumper.represent_scalar(tag, data)
+        return real_scalar_representer(dumper, tag, data, clean_up)
 
     return representer
 
 def scalar_representer_generator(clean_up=False):
     def scalar_representer(dumper, value):
-        style = None
-
-        if "\n" in value:
-            style = "|" if clean_up else "\""
-
-        return dumper.represent_scalar(TAG_STRING, value, style=style)
+        return real_scalar_representer(dumper, TAG_STRING, value, clean_up)
 
     return scalar_representer
+
+def real_scalar_representer(dumper, tag, value, clean_up):
+    style = None
+
+    if "\n" in value:
+        style = "|" if clean_up else '"'
+
+    return dumper.represent_scalar(tag, value, style=style)
 
 # Customise our loader
 CustomLoader.add_constructor(TAG_MAP, construct_mapping)
@@ -166,7 +169,7 @@ def dumper_generator(clean_up=False, long_form=False):
         pass
 
     Dumper.add_representer(six.text_type, scalar_representer_generator(clean_up))
-    Dumper.add_representer(collections.OrderedDict, representer_generator(long_form))
-    Dumper.add_representer(dict, representer_generator(long_form))
+    Dumper.add_representer(collections.OrderedDict, representer_generator(long_form, clean_up))
+    Dumper.add_representer(dict, representer_generator(long_form, clean_up))
 
     return Dumper
