@@ -27,6 +27,9 @@ class CustomDumper(yaml.Dumper):
     def increase_indent(self, flow=False, indentless=False):
         return super(CustomDumper,self).increase_indent(flow, False)
 
+class CleanDumper(CustomDumper):
+    pass
+
 class CustomLoader(yaml.Loader):
     pass
 
@@ -143,17 +146,22 @@ def representer(dumper, data):
 
     return dumper.represent_scalar(tag, data)
 
-def scalar_representer(dumper, value):
-    style = None
+def scalar_representer_generator(clean_up=False):
+    def scalar_representer(dumper, value):
+        style = None
 
-    if "\n" in value:
-        style = "\""
+        if "\n" in value:
+            style = "|" if clean_up else "\""
 
-    return dumper.represent_scalar(TAG_STRING, value, style=style)
+        return dumper.represent_scalar(TAG_STRING, value, style=style)
+
+    return scalar_representer
 
 # Customise our yaml
-CustomDumper.add_representer(six.text_type, scalar_representer)
+CustomDumper.add_representer(six.text_type, scalar_representer_generator())
 CustomLoader.add_constructor(TAG_MAP, construct_mapping)
 CustomLoader.add_multi_constructor("!", multi_constructor)
 CustomDumper.add_representer(collections.OrderedDict, representer)
 CustomDumper.add_representer(dict, representer)
+
+CleanDumper.add_representer(six.text_type, scalar_representer_generator(clean_up=True))
