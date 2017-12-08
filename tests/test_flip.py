@@ -412,3 +412,16 @@ def test_explicit_yaml_rejects_bad_yaml(bad_data):
 
     with pytest.raises(Exception, message="Invalid YAML"):
         cfn_flip.flip(bad_data, out_format="json")
+
+def test_flip_to_yaml_with_longhand_functions(input_json, parsed_json):
+    """
+    When converting to yaml, sometimes we'll want to keep the long form
+    """
+
+    actual = cfn_flip.flip(input_json, long_form=True)
+
+    # No custom loader as there should be no custom tags
+    parsed_actual = yaml.load(actual)
+
+    # We use the parsed JSON as it contains long form function calls
+    assert parsed_actual == parsed_json
