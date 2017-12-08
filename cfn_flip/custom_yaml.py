@@ -27,9 +27,6 @@ class CustomDumper(yaml.Dumper):
     def increase_indent(self, flow=False, indentless=False):
         return super(CustomDumper,self).increase_indent(flow, False)
 
-class CleanDumper(CustomDumper):
-    pass
-
 class CustomLoader(yaml.Loader):
     pass
 
@@ -112,39 +109,42 @@ class ODict(collections.OrderedDict):
         items = odict_items(self.items())
         self.items = lambda: items
 
-def representer(dumper, data):
-    """
-    Deal with !Ref style function format and OrderedDict
-    """
+def representer_generator(long_form=False):
+    def representer(dumper, data):
+        """
+        Deal with !Ref style function format and OrderedDict
+        """
 
-    if len(data.keys()) != 1:
-        data = ODict(data)
+        if len(data.keys()) != 1:
+            data = ODict(data)
 
-        return dumper.represent_mapping(TAG_MAP, data, flow_style=False)
+            return dumper.represent_mapping(TAG_MAP, data, flow_style=False)
 
-    key = list(data)[0]
-    tag = key
+        key = list(data)[0]
+        tag = key
 
-    if key not in UNCONVERTED_SUFFIXES and not key.startswith("Fn::"):
-        return dumper.represent_mapping(TAG_MAP, data, flow_style=False)
+        if long_form or (key not in UNCONVERTED_SUFFIXES and not key.startswith("Fn::")):
+            return dumper.represent_mapping(TAG_MAP, data, flow_style=False)
 
-    if key.startswith("Fn::"):
-        tag = key[4:]
+        if key.startswith("Fn::"):
+            tag = key[4:]
 
-    tag = "!{}".format(tag)
+        tag = "!{}".format(tag)
 
-    data = data[key]
+        data = data[key]
 
-    if tag == "!GetAtt":
-        if isinstance(data, list):
-            data = ".".join(data)
+        if tag == "!GetAtt":
+            if isinstance(data, list):
+                data = ".".join(data)
 
-    if isinstance(data, dict):
-        return dumper.represent_mapping(tag, data, flow_style=False)
-    elif isinstance(data, list):
-        return dumper.represent_sequence(tag, data, flow_style=True)
+        if isinstance(data, dict):
+            return dumper.represent_mapping(tag, data, flow_style=False)
+        elif isinstance(data, list):
+            return dumper.represent_sequence(tag, data, flow_style=True)
 
-    return dumper.represent_scalar(tag, data)
+        return dumper.represent_scalar(tag, data)
+
+    return representer
 
 def scalar_representer_generator(clean_up=False):
     def scalar_representer(dumper, value):
@@ -157,11 +157,16 @@ def scalar_representer_generator(clean_up=False):
 
     return scalar_representer
 
-# Customise our yaml
-CustomDumper.add_representer(six.text_type, scalar_representer_generator())
+# Customise our loader
 CustomLoader.add_constructor(TAG_MAP, construct_mapping)
 CustomLoader.add_multi_constructor("!", multi_constructor)
-CustomDumper.add_representer(collections.OrderedDict, representer)
-CustomDumper.add_representer(dict, representer)
 
-CleanDumper.add_representer(six.text_type, scalar_representer_generator(clean_up=True))
+def dumper_generator(clean_up=False, long_form=False):
+    class Dumper(CustomDumper):
+        pass
+
+    Dumper.add_representer(six.text_type, scalar_representer_generator(clean_up))
+    Dumper.add_representer(collections.OrderedDict, representer_generator(long_form))
+    Dumper.add_representer(dict, representer_generator(long_form))
+
+    return Dumper

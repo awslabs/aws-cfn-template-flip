@@ -17,9 +17,10 @@ import sys
 @click.option("--yaml", "-y", "out_format", flag_value="yaml", help="Convert to YAML. Assume the input is JSON.")
 @click.option("--no-flip", "-n", is_flag=True, help="Don't convert. You can use this to validate or just clean a template without converting it. If you use -n in conjunction with -j or -y, the input format is assumed to be the same as the output format you specify.")
 @click.option("--clean", "-c", is_flag=True, help="Performs some opinionated cleanup on your template. For now, this just converts uses of Fn::Join to Fn::Sub.")
+@click.option("--long", "-l", is_flag=True, help="Use long-form syntax for functions when converting to YAML.")
 @click.argument("input", type=click.File("r"), default=sys.stdin)
 @click.argument("output", type=click.File("w"), default=sys.stdout)
-def main(out_format, no_flip, clean, input, output):
+def main(out_format, no_flip, clean, long, input, output):
     """
     AWS CloudFormation Template Flip is a tool that converts
     AWS CloudFormation templates between JSON and YAML formats,
@@ -30,7 +31,8 @@ def main(out_format, no_flip, clean, input, output):
         output.write(flip(input.read(),
             out_format=out_format,
             clean_up=clean,
-            no_flip=no_flip
+            no_flip=no_flip,
+            long_form=long,
         ))
     except Exception as e:
         raise click.ClickException("{}".format(e))

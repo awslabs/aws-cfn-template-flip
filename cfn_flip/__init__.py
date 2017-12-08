@@ -10,7 +10,7 @@ or in the "license" file accompanying this file. This file is distributed on an 
 
 from .clean import clean
 from .custom_json import DateTimeAwareJsonEncoder
-from .custom_yaml import CleanDumper, CustomDumper, CustomLoader
+from .custom_yaml import dumper_generator, CustomLoader
 import collections
 import json
 import yaml
@@ -54,14 +54,12 @@ def _dump_json(data):
 
     return json.dumps(data, indent=4, cls=DateTimeAwareJsonEncoder)
 
-def _dump_yaml(data, clean_up=False):
+def _dump_yaml(data, clean_up=False, long_form=False):
     """
     Output some YAML
     """
 
-    dumper = CleanDumper if clean_up else CustomDumper
-
-    return yaml.dump(data, Dumper=dumper, default_flow_style=False)
+    return yaml.dump(data, Dumper=dumper_generator(clean_up, long_form), default_flow_style=False)
 
 def to_json(template, clean_up=False):
     """
@@ -87,7 +85,7 @@ def to_yaml(template, clean_up=False):
 
     return _dump_yaml(data, clean_up)
 
-def flip(template, out_format=None, clean_up=False, no_flip=False):
+def flip(template, out_format=None, clean_up=False, no_flip=False, long_form=False):
     """
     Figure out the input format and convert the data to the opposing output format
     """
@@ -125,4 +123,4 @@ def flip(template, out_format=None, clean_up=False, no_flip=False):
     if out_format == "json":
         return _dump_json(data)
 
-    return _dump_yaml(data, clean_up)
+    return _dump_yaml(data, clean_up, long_form)
