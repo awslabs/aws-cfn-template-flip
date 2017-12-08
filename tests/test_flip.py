@@ -311,6 +311,26 @@ def test_flip_to_yaml_with_newlines():
 
     assert cfn_flip.to_yaml(source) == expected
 
+def test_clean_flip_to_yaml_with_newlines():
+    """
+    Test that strings containing newlines use blockquotes when using "clean"
+    """
+
+    source = json.dumps({
+        "outer": {
+            "inner": "#!/bin/bash\nyum -y update\nyum install python",
+        },
+    })
+
+    expected = """outer:
+  inner: |-
+    #!/bin/bash
+    yum -y update
+    yum install python
+"""
+
+    assert cfn_flip.to_yaml(source, clean_up=True) == expected
+
 def test_flip_with_json_output(input_yaml, parsed_json):
     """
     We should be able to specify that the output is JSON

@@ -10,7 +10,7 @@ or in the "license" file accompanying this file. This file is distributed on an 
 
 from .clean import clean
 from .custom_json import DateTimeAwareJsonEncoder
-from .custom_yaml import CustomDumper, CustomLoader
+from .custom_yaml import CleanDumper, CustomDumper, CustomLoader
 import collections
 import json
 import yaml
@@ -54,12 +54,14 @@ def _dump_json(data):
 
     return json.dumps(data, indent=4, cls=DateTimeAwareJsonEncoder)
 
-def _dump_yaml(data):
+def _dump_yaml(data, clean_up=False):
     """
     Output some YAML
     """
 
-    return yaml.dump(data, Dumper=CustomDumper, default_flow_style=False)
+    dumper = CleanDumper if clean_up else CustomDumper
+
+    return yaml.dump(data, Dumper=dumper, default_flow_style=False)
 
 def to_json(template, clean_up=False):
     """
@@ -83,7 +85,7 @@ def to_yaml(template, clean_up=False):
     if clean_up:
         data = clean(data)
 
-    return _dump_yaml(data)
+    return _dump_yaml(data, clean_up)
 
 def flip(template, out_format=None, clean_up=False, no_flip=False):
     """
@@ -123,4 +125,4 @@ def flip(template, out_format=None, clean_up=False, no_flip=False):
     if out_format == "json":
         return _dump_json(data)
 
-    return _dump_yaml(data)
+    return _dump_yaml(data, clean_up)
