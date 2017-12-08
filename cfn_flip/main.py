@@ -15,9 +15,9 @@ import sys
 @click.command()
 @click.option("--json", "-j", "out_format", flag_value="json", help="Convert to JSON. Assume the input is YAML.")
 @click.option("--yaml", "-y", "out_format", flag_value="yaml", help="Convert to YAML. Assume the input is JSON.")
-@click.option("--no-flip", "-n", is_flag=True, help="Don't convert. You can use this to validate or just clean a template without converting it. If you use -n in conjunction with -j or -y, the input format is assumed to be the same as the output format you specify.")
-@click.option("--clean", "-c", is_flag=True, help="Performs some opinionated cleanup on your template. For now, this just converts uses of Fn::Join to Fn::Sub.")
+@click.option("--clean", "-c", is_flag=True, help="Performs some opinionated cleanup on your template.")
 @click.option("--long", "-l", is_flag=True, help="Use long-form syntax for functions when converting to YAML.")
+@click.option("--no-flip", "-n", is_flag=True, help="Don't convert. If you use -n in conjunction with -j or -y, the input format is assumed to be the same as the output format you specify.")
 @click.argument("input", type=click.File("r"), default=sys.stdin)
 @click.argument("output", type=click.File("w"), default=sys.stdout)
 def main(out_format, no_flip, clean, long, input, output):
