@@ -8,7 +8,7 @@ Licensed under the Apache License, Version 2.0 (the "License"). You may not use 
 or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """
 
-from cfn_flip.custom_yaml import CustomLoader
+from cfn_flip.yaml_loader import CustomLoader
 import cfn_flip
 import json
 import pytest
@@ -319,6 +319,9 @@ def test_clean_flip_to_yaml_with_newlines():
     source = json.dumps({
         "outer": {
             "inner": "#!/bin/bash\nyum -y update\nyum install python",
+            "subbed": {
+                "Fn::Sub": "The cake\nis\n${CakeType}",
+            },
         },
     })
 
@@ -327,6 +330,10 @@ def test_clean_flip_to_yaml_with_newlines():
     #!/bin/bash
     yum -y update
     yum install python
+  subbed: !Sub |-
+    The cake
+    is
+    ${CakeType}
 """
 
     assert cfn_flip.to_yaml(source, clean_up=True) == expected
@@ -425,3 +432,24 @@ def test_flip_to_yaml_with_longhand_functions(input_json, parsed_json):
 
     # We use the parsed JSON as it contains long form function calls
     assert parsed_actual == parsed_json
+
+def test_unconverted_types():
+    """
+    When converting to yaml, we need to make sure all short-form types are tagged
+    """
+
+    fns = {
+        "Fn::GetAtt": "!GetAtt",
+        "Fn::Sub": "!Sub",
+        "Ref": "!Ref",
+        "Condition": "!Condition",
+    }
+
+    for fn, tag in fns.items():
+        value = json.dumps({
+            fn: "something"
+        })
+
+        expected = "{} 'something'\n".format(tag)
+
+        assert cfn_flip.to_yaml(value) == expected
