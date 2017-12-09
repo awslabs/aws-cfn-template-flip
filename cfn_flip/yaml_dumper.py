@@ -8,8 +8,8 @@ Licensed under the Apache License, Version 2.0 (the "License"). You may not use 
 or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """
 
-from .odict import ODict
-import collections
+from cfn_tools.odict import ODict
+from cfn_tools.yaml_dumper import CfnYamlDumper
 import six
 import yaml
 
@@ -18,23 +18,7 @@ CONVERTED_SUFFIXES = ["Ref", "Condition"]
 
 FN_PREFIX = "Fn::"
 
-class BaseDumper(yaml.Dumper):
-    """
-    Indent block sequences from parent using more common style
-    ("  - entry"  vs "- entry").
-    Causes fewer problems with validation and tools.
-    """
-  
-    def increase_indent(self, flow=False, indentless=False):
-        return super(BaseDumper, self).increase_indent(flow, False)
-
-    def represent_scalar(self, tag, value, style=None):
-        if "\n" in value and style is None:
-            style = "\""
-
-        return super(BaseDumper, self).represent_scalar(tag, value, style)
-
-class BaseCleanDumper(BaseDumper):
+class BaseCleanDumper(CfnYamlDumper):
     """
     Format multi-line strings with |
     """
@@ -45,7 +29,7 @@ class BaseCleanDumper(BaseDumper):
 
         return super(BaseCleanDumper, self).represent_scalar(tag, value, style)
 
-class Dumper(BaseDumper):
+class Dumper(CfnYamlDumper):
     """
     The standard dumper
     """
@@ -55,7 +39,7 @@ class CleanDumper(BaseCleanDumper):
     Cleans up strings
     """
 
-class LongDumper(BaseDumper):
+class LongDumper(CfnYamlDumper):
     """
     Preserves long-form function syntax
     """
@@ -98,8 +82,8 @@ def map_representer(dumper, value):
     return dumper.represent_mapping(TAG_MAP, value, flow_style=False)
 
 # Customise our dumpers
-Dumper.add_representer(collections.OrderedDict, map_representer)
-CleanDumper.add_representer(collections.OrderedDict, map_representer)
+Dumper.add_representer(ODict, map_representer)
+CleanDumper.add_representer(ODict, map_representer)
 
 def get_dumper(clean_up=False, long_form=False):
     if clean_up:

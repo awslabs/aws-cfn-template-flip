@@ -9,53 +9,24 @@ or in the "license" file accompanying this file. This file is distributed on an 
 """
 
 from .clean import clean
-from .custom_json import DateTimeAwareJsonEncoder
 from .yaml_dumper import get_dumper
-from .yaml_loader import CustomLoader
-import collections
+from cfn_tools import load_json, load_yaml, dump_json
 import json
 import yaml
 
-def _load_json(template):
-    """
-    We've decided it's JSON, so let's try to load it
-    """
-
-    try:
-        return json.loads(template, object_pairs_hook=collections.OrderedDict)
-    except ValueError:
-        raise Exception("Invalid JSON")
-
-def _load_yaml(template):
-    """
-    We've decided it's YAML, so let's try to load it
-    """
-
-    try:
-        return yaml.load(template, Loader=CustomLoader)
-    except:
-        raise Exception("Invalid YAML")
-
-def _load(template):
+def load(template):
     """
     Try to guess the input format
     """
 
     try:
-        data = _load_json(template)
+        data = load_json(template)
         return data, "json"
     except:
-        data = _load_yaml(template)
+        data = load_yaml(template)
         return data, "yaml"
 
-def _dump_json(data):
-    """
-    Output some JSON
-    """
-
-    return json.dumps(data, indent=4, cls=DateTimeAwareJsonEncoder)
-
-def _dump_yaml(data, clean_up=False, long_form=False):
+def dump_yaml(data, clean_up=False, long_form=False):
     """
     Output some YAML
     """
@@ -67,24 +38,24 @@ def to_json(template, clean_up=False):
     Assume the input is YAML and convert to JSON
     """
 
-    data = _load_yaml(template)
+    data = load_yaml(template)
 
     if clean_up:
         data = clean(data)
 
-    return _dump_json(data)
+    return dump_json(data)
 
 def to_yaml(template, clean_up=False):
     """
     Assume the input is JSON and convert to YAML
     """
 
-    data = _load_json(template)
+    data = load_json(template)
 
     if clean_up:
         data = clean(data)
 
-    return _dump_yaml(data, clean_up)
+    return dump_yaml(data, clean_up)
 
 def flip(template, out_format=None, clean_up=False, no_flip=False, long_form=False):
     """
@@ -102,12 +73,12 @@ def flip(template, out_format=None, clean_up=False, no_flip=False, long_form=Fal
         in_format = "json"
 
     if in_format == "json":
-        data = _load_json(template)
+        data = load_json(template)
     elif in_format == "yaml":
-        data = _load_yaml(template)
+        data = load_yaml(template)
     else:
         try:
-            data, in_format = _load(template)
+            data, in_format = load(template)
         except Exception as e:
             raise Exception("Could not determine the input format")
 
@@ -122,6 +93,6 @@ def flip(template, out_format=None, clean_up=False, no_flip=False, long_form=Fal
         data = clean(data)
 
     if out_format == "json":
-        return _dump_json(data)
+        return dump_json(data)
 
-    return _dump_yaml(data, clean_up, long_form)
+    return dump_yaml(data, clean_up, long_form)

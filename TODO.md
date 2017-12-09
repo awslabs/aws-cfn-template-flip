@@ -1,3 +1,3 @@
 # To do
 
-* Consider pytest
+* Use yaml.safe_load

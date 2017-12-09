@@ -8,7 +8,7 @@ Licensed under the Apache License, Version 2.0 (the "License"). You may not use 
 or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """
 
-from cfn_flip.yaml_loader import CustomLoader
+from cfn_tools import dump_json, load_json, load_yaml
 import cfn_flip
 import json
 import pytest
@@ -17,38 +17,38 @@ import yaml
 @pytest.fixture
 def input_json():
     with open("examples/test.json", "r") as f:
-        return f.read()
+        return f.read().strip()
 
 @pytest.fixture
 def input_yaml():
     with open("examples/test.yaml", "r") as f:
-        return f.read()
+        return f.read().strip()
 
 @pytest.fixture
 def clean_json():
     with open("examples/clean.json", "r") as f:
-        return f.read()
+        return f.read().strip()
 
 @pytest.fixture
 def clean_yaml():
     with open("examples/clean.yaml", "r") as f:
-        return f.read()
+        return f.read().strip()
 
 @pytest.fixture
 def parsed_json():
-    return json.loads(input_json())
+    return load_json(input_json())
 
 @pytest.fixture
 def parsed_yaml():
-    return yaml.load(input_yaml(), Loader=CustomLoader)
+    return load_yaml(input_yaml())
 
 @pytest.fixture
 def parsed_clean_json():
-    return json.loads(clean_json())
+    return load_json(clean_json())
 
 @pytest.fixture
 def parsed_clean_yaml():
-    return yaml.load(clean_yaml(), Loader=CustomLoader)
+    return load_yaml(clean_yaml())
 
 @pytest.fixture
 def bad_data():
@@ -64,7 +64,7 @@ def test_to_json_with_yaml(input_yaml, parsed_json):
     """
 
     actual = cfn_flip.to_json(input_yaml)
-    assert json.loads(actual) == parsed_json
+    assert load_json(actual) == parsed_json
 
 def test_to_json_with_json(input_json, parsed_json):
     """
@@ -74,7 +74,7 @@ def test_to_json_with_json(input_json, parsed_json):
 
     actual = cfn_flip.to_json(input_json)
 
-    assert json.loads(actual) == parsed_json
+    assert load_json(actual) == parsed_json
 
 def test_to_yaml_with_json(input_json, parsed_yaml):
     """
@@ -85,9 +85,9 @@ def test_to_yaml_with_json(input_json, parsed_yaml):
 
     # The result should not parse as json
     with pytest.raises(ValueError):
-        json.loads(actual)
+        load_json(actual)
 
-    parsed_actual = yaml.load(actual, Loader=CustomLoader)
+    parsed_actual = load_yaml(actual)
 
     assert parsed_actual == parsed_yaml
 
@@ -100,31 +100,32 @@ def test_to_yaml_with_yaml(input_yaml):
     with pytest.raises(Exception, message="Invalid JSON"):
         cfn_flip.to_yaml(input_yaml)
 
-def test_flip_to_json(input_yaml, parsed_json):
+def test_flip_to_json(input_yaml, input_json, parsed_json):
     """
     Test that flip performs correctly transforming from yaml to json
     """
 
     actual = cfn_flip.flip(input_yaml)
 
-    assert json.loads(actual) == parsed_json
+    assert actual == input_json
+    assert load_json(actual) == parsed_json
 
-def test_flip_to_yaml(input_json, parsed_yaml):
+def test_flip_to_yaml(input_json, input_yaml, parsed_yaml):
     """
     Test that flip performs correctly transforming from json to yaml
     """
 
     actual = cfn_flip.flip(input_json)
+    assert actual == input_yaml + "\n"
 
     # The result should not parse as json
     with pytest.raises(ValueError):
-        json.loads(actual)
+        load_json(actual)
 
-    parsed_actual = yaml.load(actual, Loader=CustomLoader)
-
+    parsed_actual = load_yaml(actual)
     assert parsed_actual == parsed_yaml
 
-def test_flip_to_clean_json(input_yaml, parsed_clean_json):
+def test_flip_to_clean_json(input_yaml, clean_json, parsed_clean_json):
     """
     Test that flip performs correctly transforming from yaml to json
     and the `clean_up` flag is active
@@ -132,22 +133,23 @@ def test_flip_to_clean_json(input_yaml, parsed_clean_json):
 
     actual = cfn_flip.flip(input_yaml, clean_up=True)
 
-    assert json.loads(actual) ==  parsed_clean_json
+    assert actual == clean_json
+    assert load_json(actual) ==  parsed_clean_json
 
-def test_flip_to_clean_yaml(input_json, parsed_clean_yaml):
+def test_flip_to_clean_yaml(input_json, clean_yaml, parsed_clean_yaml):
     """
     Test that flip performs correctly transforming from json to yaml
     and the `clean_up` flag is active
     """
 
     actual = cfn_flip.flip(input_json, clean_up=True)
+    assert actual == clean_yaml + "\n"
 
     # The result should not parse as json
     with pytest.raises(ValueError):
-        json.loads(actual)
+        load_json(actual)
 
-    parsed_actual = yaml.load(actual, Loader=CustomLoader)
-
+    parsed_actual = load_yaml(actual)
     assert parsed_actual == parsed_clean_yaml
 
 def test_flip_with_bad_data(fail_message, bad_data):
@@ -172,7 +174,7 @@ def test_flip_to_json_with_datetimes():
 
     actual = cfn_flip.to_json(tricky_data)
 
-    parsed_actual = json.loads(actual)
+    parsed_actual = load_json(actual)
 
     assert parsed_actual == {
         "a date": "2017-03-02",
@@ -246,7 +248,7 @@ def test_flip_to_json_with_multi_level_getatt():
 
     actual = cfn_flip.to_json(data, clean_up=True)
 
-    assert json.loads(actual) == expected
+    assert load_json(actual) == expected
 
 def test_getatt_from_yaml():
     """
@@ -266,11 +268,11 @@ def test_getatt_from_yaml():
 
     # No clean
     actual = cfn_flip.to_json(source, clean_up=False)
-    assert json.loads(actual) == expected
+    assert load_json(actual) == expected
 
     # With clean
     actual = cfn_flip.to_json(source, clean_up=True)
-    assert json.loads(actual) == expected
+    assert load_json(actual) == expected
 
 def test_flip_to_json_with_condition():
     """
@@ -293,7 +295,7 @@ def test_flip_to_json_with_condition():
     }
 
     actual = cfn_flip.to_json(source, clean_up=True)
-    assert json.loads(actual) == expected
+    assert load_json(actual) == expected
 
 def test_flip_to_yaml_with_newlines():
     """
@@ -316,7 +318,7 @@ def test_clean_flip_to_yaml_with_newlines():
     Test that strings containing newlines use blockquotes when using "clean"
     """
 
-    source = json.dumps({
+    source = dump_json({
         "outer": {
             "inner": "#!/bin/bash\nyum -y update\nyum install python",
             "subbed": {
@@ -345,7 +347,7 @@ def test_flip_with_json_output(input_yaml, parsed_json):
 
     actual = cfn_flip.flip(input_yaml, out_format="json")
 
-    assert json.loads(actual) == parsed_json
+    assert load_json(actual) == parsed_json
 
 def test_flip_with_yaml_output(input_json, parsed_yaml):
     """
@@ -354,7 +356,7 @@ def test_flip_with_yaml_output(input_json, parsed_yaml):
 
     actual = cfn_flip.flip(input_json, out_format="yaml")
 
-    parsed_actual = yaml.load(actual, Loader=CustomLoader)
+    parsed_actual = load_yaml(actual)
 
     assert parsed_actual == parsed_yaml
 
@@ -365,7 +367,7 @@ def test_no_flip_with_json(input_json, parsed_json):
 
     actual = cfn_flip.flip(input_json, no_flip=True)
 
-    assert json.loads(actual) == parsed_json
+    assert load_json(actual) == parsed_json
 
 def test_no_flip_with_yaml(input_yaml, parsed_yaml):
     """
@@ -374,7 +376,7 @@ def test_no_flip_with_yaml(input_yaml, parsed_yaml):
 
     actual = cfn_flip.flip(input_yaml, no_flip=True)
 
-    parsed_actual = yaml.load(actual, Loader=CustomLoader)
+    parsed_actual = load_yaml(actual)
 
     assert parsed_actual == parsed_yaml
 
@@ -386,7 +388,7 @@ def test_no_flip_with_explicit_json(input_json, parsed_json):
 
     actual = cfn_flip.flip(input_json, out_format="json", no_flip=True)
 
-    assert json.loads(actual) == parsed_json
+    assert load_json(actual) == parsed_json
 
 def test_no_flip_with_explicit_yaml(input_yaml, parsed_yaml):
     """
@@ -396,7 +398,7 @@ def test_no_flip_with_explicit_yaml(input_yaml, parsed_yaml):
 
     actual = cfn_flip.flip(input_yaml, out_format="yaml", no_flip=True)
 
-    parsed_actual = yaml.load(actual, Loader=CustomLoader)
+    parsed_actual = load_yaml(actual)
 
     assert parsed_actual == parsed_yaml
 
@@ -446,7 +448,7 @@ def test_unconverted_types():
     }
 
     for fn, tag in fns.items():
-        value = json.dumps({
+        value = dump_json({
             fn: "something"
         })
 
