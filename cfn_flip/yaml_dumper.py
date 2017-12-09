@@ -8,6 +8,7 @@ Licensed under the Apache License, Version 2.0 (the "License"). You may not use 
 or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """
 
+from cfn_clean.yaml_dumper import CleanCfnYamlDumper
 from cfn_tools.odict import ODict
 from cfn_tools.yaml_dumper import CfnYamlDumper
 import six
@@ -18,23 +19,12 @@ CONVERTED_SUFFIXES = ["Ref", "Condition"]
 
 FN_PREFIX = "Fn::"
 
-class BaseCleanDumper(CfnYamlDumper):
-    """
-    Format multi-line strings with |
-    """
-
-    def represent_scalar(self, tag, value, style=None):
-        if "\n" in value:
-            style = "|"
-
-        return super(BaseCleanDumper, self).represent_scalar(tag, value, style)
-
 class Dumper(CfnYamlDumper):
     """
     The standard dumper
     """
 
-class CleanDumper(BaseCleanDumper):
+class CleanDumper(CleanCfnYamlDumper):
     """
     Cleans up strings
     """
@@ -44,7 +34,7 @@ class LongDumper(CfnYamlDumper):
     Preserves long-form function syntax
     """
 
-class LongCleanDumper(BaseCleanDumper):
+class LongCleanDumper(CleanCfnYamlDumper):
     """
     Preserves long-form function syntax
     """
