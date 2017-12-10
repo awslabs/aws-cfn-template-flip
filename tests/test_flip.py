@@ -331,6 +331,49 @@ def test_clean_flip_to_yaml_with_newlines():
 
     assert cfn_flip.to_yaml(source, clean_up=True) == expected
 
+def test_clean_flip_to_yaml_reused_params():
+    """
+    Identical parameters should be reused
+    """
+    json_data = {
+        "Fn::Join": [
+            "\n", [
+                "The",
+                {
+                    "Fn::Join": ["-", [{
+                        "Ref": "Cake"
+                    }, "Lie"]]
+                },
+                "is",
+                {
+                    "Fn::Join": ["-", [{
+                        "Ref": "Cake"
+                    }, "Lie"]]
+                },
+                "and isn't",
+                {
+                    "Fn::Join": ["-", [{
+                        "Ref": "Pizza"
+                    }, "Truth"]]
+                },
+            ]
+        ]
+    }
+    source = json.dumps(json_data)
+    expected = """!Sub
+- |-
+  The
+  ${Param1}
+  is
+  ${Param1}
+  and isn't
+  ${Param2}
+- Param1: !Sub '${Cake}-Lie'
+  Param2: !Sub '${Pizza}-Truth'
+"""
+
+    assert cfn_flip.to_yaml(source, clean_up=True) == expected
+
 def test_flip_with_json_output(input_yaml, parsed_json):
     """
     We should be able to specify that the output is JSON
