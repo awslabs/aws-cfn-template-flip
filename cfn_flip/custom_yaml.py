@@ -140,7 +140,11 @@ def representer_generator(long_form=False, clean_up=False):
         if isinstance(data, dict):
             return dumper.represent_mapping(tag, data, flow_style=False)
         elif isinstance(data, list):
-            return dumper.represent_sequence(tag, data, flow_style=True)
+            flow_style = True
+            if tag == "!Sub" and clean_up:
+                flow_style = False
+
+            return dumper.represent_sequence(tag, data, flow_style=flow_style)
 
         return real_scalar_representer(dumper, tag, data, clean_up)
 
