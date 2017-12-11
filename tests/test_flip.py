@@ -9,6 +9,7 @@ or in the "license" file accompanying this file. This file is distributed on an 
 """
 
 from cfn_tools import dump_json, load_json, load_yaml
+from cfn_tools.odict import ODict
 import cfn_flip
 import json
 import pytest
@@ -107,7 +108,6 @@ def test_flip_to_json(input_yaml, input_json, parsed_json):
 
     actual = cfn_flip.flip(input_yaml)
 
-    assert actual == input_json
     assert load_json(actual) == parsed_json
 
 def test_flip_to_yaml(input_json, input_yaml, parsed_yaml):
@@ -133,7 +133,6 @@ def test_flip_to_clean_json(input_yaml, clean_json, parsed_clean_json):
 
     actual = cfn_flip.flip(input_yaml, clean_up=True)
 
-    assert actual == clean_json
     assert load_json(actual) ==  parsed_clean_json
 
 def test_flip_to_clean_yaml(input_json, clean_yaml, parsed_clean_yaml):
@@ -318,14 +317,14 @@ def test_clean_flip_to_yaml_with_newlines():
     Test that strings containing newlines use blockquotes when using "clean"
     """
 
-    source = dump_json({
-        "outer": {
-            "inner": "#!/bin/bash\nyum -y update\nyum install python",
-            "subbed": {
-                "Fn::Sub": "The cake\nis\n${CakeType}",
-            },
-        },
-    })
+    source = dump_json(ODict((
+        ("outer", ODict((
+            ("inner", "#!/bin/bash\nyum -y update\nyum install python"),
+            ("subbed", ODict((
+                ("Fn::Sub", "The cake\nis\n${CakeType}"),
+            ))),
+        ))),
+    )))
 
     expected = """outer:
   inner: |-

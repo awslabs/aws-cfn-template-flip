@@ -1,8 +1,10 @@
 from cfn_tools import load_json, load_yaml, dump_json, dump_yaml
 
+from cfn_tools import load_json, load_yaml, dump_json, dump_yaml
 from cfn_tools.odict import ODict
 import datetime
 import json
+import pytest
 import yaml
 
 def test_load_json():
@@ -10,11 +12,13 @@ def test_load_json():
     Should map to an ordered dict
     """
 
-    source = json.dumps({
+    source = """
+    {
         "z": "first",
         "m": "middle",
-        "a": "last",
-    })
+        "a": "last"
+    }
+    """
 
     actual = load_json(source)
 
@@ -57,19 +61,24 @@ def test_dump_json():
     provide a nice indent, and preserve order
     """
 
-    source = ODict({
-        "z": datetime.time(3, 45),
-        "m": datetime.date(2012, 5, 2),
-        "a": datetime.datetime(2012, 5, 2, 3, 45),
-    })
+    source = ODict((
+        ("z", datetime.time(3, 45)),
+        ("m", datetime.date(2012, 5, 2)),
+        ("a", datetime.datetime(2012, 5, 2, 3, 45)),
+    ))
 
     actual = dump_json(source)
 
-    assert actual == """{
-    "z": "03:45:00",
-    "m": "2012-05-02",
-    "a": "2012-05-02T03:45:00"
-}"""
+    assert load_json(actual) == {
+        "z": "03:45:00",
+        "m": "2012-05-02",
+        "a": "2012-05-02T03:45:00",
+    }
+
+    with pytest.raises(TypeError, message="complex is not JSON serializable"):
+        dump_json({
+            "c": 1 + 1j,
+        })
 
 def test_dump_yaml():
     """
@@ -77,11 +86,11 @@ def test_dump_yaml():
     use a standard indenting style, and preserve order
     """
 
-    source = ODict({
-        "z": "short string",
-        "m": {"Ref": "embedded string"},
-        "a": "A\nmulti-line\nstring",
-    })
+    source = ODict((
+        ("z", "short string",),
+        ("m", {"Ref": "embedded string"},),
+        ("a", "A\nmulti-line\nstring",),
+    ))
 
     actual = dump_yaml(source)
 

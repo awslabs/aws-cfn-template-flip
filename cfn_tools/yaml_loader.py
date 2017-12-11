@@ -41,9 +41,9 @@ def multi_constructor(loader, tag_suffix, node):
     else:
         raise "Bad tag: !{}".format(tag_suffix)
 
-    return  ODict({
-        tag_suffix: constructor(node)
-    })
+    return  ODict((
+        (tag_suffix, constructor(node)),
+    ))
 
 def construct_getatt(node):
     """

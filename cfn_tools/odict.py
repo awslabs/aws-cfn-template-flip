@@ -35,8 +35,12 @@ class ODict(collections.OrderedDict):
     A wrapper for OrderedDict that doesn't allow sorting of keys
     """
 
-    def __init__(self, *args, **kwargs):
-        super(ODict, self).__init__(*args, **kwargs)
+    def __init__(self, pairs=[]):
+        if isinstance(pairs, dict):
+            # Dicts lose ordering in python<3.6 so disallow them
+            raise Exception("ODict does not allow construction from a dict")
+
+        super(ODict, self).__init__(pairs)
 
         old_items = self.items
         self.items = lambda: odict_items(old_items())

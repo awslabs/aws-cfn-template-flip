@@ -17,7 +17,7 @@ def convert_join(sep, parts):
 
     plain_string = True
 
-    args = ODict({})
+    args = ODict()
 
     for i, part in enumerate(parts):
         part = clean(part)
@@ -44,13 +44,13 @@ def convert_join(sep, parts):
         return source
 
     if args:
-        return ODict({
-            "Fn::Sub": [source, args],
-        })
+        return ODict((
+            ("Fn::Sub", [source, args]),
+        ))
 
-    return ODict({
-        "Fn::Sub": source,
-    })
+    return ODict((
+        ("Fn::Sub", source),
+    ))
 
 def clean(source):
     """

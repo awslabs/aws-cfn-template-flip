@@ -9,9 +9,11 @@ or in the "license" file accompanying this file. This file is distributed on an 
 """
 
 from .odict import ODict
+import six
 import yaml
 
 TAG_MAP = "tag:yaml.org,2002:map"
+TAG_STRING = "tag:yaml.org,2002:str"
 
 class CfnYamlDumper(yaml.Dumper):
     """
@@ -24,10 +26,19 @@ class CfnYamlDumper(yaml.Dumper):
         return super(CfnYamlDumper, self).increase_indent(flow, False)
 
     def represent_scalar(self, tag, value, style=None):
-        if "\n" in value and style is None:
-            style = "\""
+        if isinstance(value, six.text_type):
+            if "\n" in value and style is None:
+                style = "\""
 
         return super(CfnYamlDumper, self).represent_scalar(tag, value, style)
+
+def string_representer(dumper, value):
+    style = None
+
+    if "\n" in value:
+        style = "\""
+
+    return dumper.represent_scalar(TAG_STRING, value, style=style)
 
 def map_representer(dumper, value):
     """
@@ -38,3 +49,4 @@ def map_representer(dumper, value):
 
 # Customise the dumper
 CfnYamlDumper.add_representer(ODict, map_representer)
+CfnYamlDumper.add_representer(six.text_type, string_representer)

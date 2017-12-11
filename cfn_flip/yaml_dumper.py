@@ -58,7 +58,7 @@ def map_representer(dumper, value):
     Deal with !Ref style function format and OrderedDict
     """
 
-    value = ODict(value)
+    value = ODict(value.items())
 
     if len(value.keys()) == 1:
         key = list(value.keys())[0]
