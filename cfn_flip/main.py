@@ -1,16 +1,17 @@
-"""                                                                                                      
-Copyright 2016-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.                                  
-                                                                                                         
-Licensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with the License. A copy of the License is located at                                              
-                                                                                                         
-    http://aws.amazon.com/apache2.0/                                                                     
-                                                                                                         
-or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.                                                 
+"""
+Copyright 2016-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with the License. A copy of the License is located at
+
+    http://aws.amazon.com/apache2.0/
+
+or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """
 
 from . import flip
 import click
 import sys
+
 
 @click.command()
 @click.option("--json", "-j", "out_format", flag_value="json", help="Convert to JSON. Assume the input is YAML.")
@@ -28,7 +29,8 @@ def main(out_format, no_flip, clean, long, input, output):
     """
 
     try:
-        output.write(flip(input.read(),
+        output.write(flip(
+            input.read(),
             out_format=out_format,
             clean_up=clean,
             no_flip=no_flip,

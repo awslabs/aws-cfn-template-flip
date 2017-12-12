@@ -11,53 +11,63 @@ or in the "license" file accompanying this file. This file is distributed on an 
 from cfn_tools import dump_json, load_json, load_yaml
 from cfn_tools.odict import ODict
 import cfn_flip
-import json
 import pytest
 import yaml
+
 
 @pytest.fixture
 def input_json():
     with open("examples/test.json", "r") as f:
         return f.read().strip()
 
+
 @pytest.fixture
 def input_yaml():
     with open("examples/test.yaml", "r") as f:
         return f.read().strip()
+
 
 @pytest.fixture
 def clean_json():
     with open("examples/clean.json", "r") as f:
         return f.read().strip()
 
+
 @pytest.fixture
 def clean_yaml():
     with open("examples/clean.yaml", "r") as f:
         return f.read().strip()
 
+
 @pytest.fixture
 def parsed_json():
     return load_json(input_json())
+
 
 @pytest.fixture
 def parsed_yaml():
     return load_yaml(input_yaml())
 
+
 @pytest.fixture
 def parsed_clean_json():
     return load_json(clean_json())
+
 
 @pytest.fixture
 def parsed_clean_yaml():
     return load_yaml(clean_yaml())
 
+
 @pytest.fixture
 def bad_data():
     return "<!DOCTYPE html>\n\n<html>\n\tThis isn't right!\n</html>"
 
+
 @pytest.fixture
 def fail_message():
     return "Could not determine the input format"
+
 
 def test_to_json_with_yaml(input_yaml, parsed_json):
     """
@@ -66,6 +76,7 @@ def test_to_json_with_yaml(input_yaml, parsed_json):
 
     actual = cfn_flip.to_json(input_yaml)
     assert load_json(actual) == parsed_json
+
 
 def test_to_json_with_json(input_json, parsed_json):
     """
@@ -76,6 +87,7 @@ def test_to_json_with_json(input_json, parsed_json):
     actual = cfn_flip.to_json(input_json)
 
     assert load_json(actual) == parsed_json
+
 
 def test_to_yaml_with_json(input_json, parsed_yaml):
     """
@@ -92,6 +104,7 @@ def test_to_yaml_with_json(input_json, parsed_yaml):
 
     assert parsed_actual == parsed_yaml
 
+
 def test_to_yaml_with_yaml(input_yaml):
     """
     Test that to_yaml fails with a ValueError when passed yaml
@@ -101,6 +114,7 @@ def test_to_yaml_with_yaml(input_yaml):
     with pytest.raises(Exception, message="Invalid JSON"):
         cfn_flip.to_yaml(input_yaml)
 
+
 def test_flip_to_json(input_yaml, input_json, parsed_json):
     """
     Test that flip performs correctly transforming from yaml to json
@@ -109,6 +123,7 @@ def test_flip_to_json(input_yaml, input_json, parsed_json):
     actual = cfn_flip.flip(input_yaml)
 
     assert load_json(actual) == parsed_json
+
 
 def test_flip_to_yaml(input_json, input_yaml, parsed_yaml):
     """
@@ -125,6 +140,7 @@ def test_flip_to_yaml(input_json, input_yaml, parsed_yaml):
     parsed_actual = load_yaml(actual)
     assert parsed_actual == parsed_yaml
 
+
 def test_flip_to_clean_json(input_yaml, clean_json, parsed_clean_json):
     """
     Test that flip performs correctly transforming from yaml to json
@@ -133,7 +149,8 @@ def test_flip_to_clean_json(input_yaml, clean_json, parsed_clean_json):
 
     actual = cfn_flip.flip(input_yaml, clean_up=True)
 
-    assert load_json(actual) ==  parsed_clean_json
+    assert load_json(actual) == parsed_clean_json
+
 
 def test_flip_to_clean_yaml(input_json, clean_yaml, parsed_clean_yaml):
     """
@@ -151,6 +168,7 @@ def test_flip_to_clean_yaml(input_json, clean_yaml, parsed_clean_yaml):
     parsed_actual = load_yaml(actual)
     assert parsed_actual == parsed_clean_yaml
 
+
 def test_flip_with_bad_data(fail_message, bad_data):
     """
     Test that flip fails with an error message when passed bad data
@@ -159,12 +177,11 @@ def test_flip_with_bad_data(fail_message, bad_data):
     with pytest.raises(Exception, message=fail_message):
         cfn_flip.flip(bad_data)
 
+
 def test_flip_to_json_with_datetimes():
     """
     Test that the json encoder correctly handles dates and datetimes
     """
-
-    from datetime import date, datetime, time
 
     tricky_data = """
     a date: 2017-03-02
@@ -179,6 +196,7 @@ def test_flip_to_json_with_datetimes():
         "a date": "2017-03-02",
         "a datetime": "2017-03-02T19:52:00",
     }
+
 
 def test_flip_to_yaml_with_clean_getatt():
     """
@@ -196,6 +214,7 @@ def test_flip_to_yaml_with_clean_getatt():
     assert cfn_flip.to_yaml(data, clean_up=False) == expected
     assert cfn_flip.to_yaml(data, clean_up=True) == expected
 
+
 def test_flip_to_yaml_with_multi_level_getatt():
     """
     Test that we correctly convert multi-level Fn::GetAtt
@@ -211,6 +230,7 @@ def test_flip_to_yaml_with_multi_level_getatt():
     expected = "!GetAtt 'First.Second.Third'\n"
 
     assert cfn_flip.to_yaml(data) == expected
+
 
 def test_flip_to_yaml_with_dotted_getatt():
     """
@@ -233,6 +253,7 @@ def test_flip_to_yaml_with_dotted_getatt():
 
     assert cfn_flip.to_yaml(data) == expected
 
+
 def test_flip_to_json_with_multi_level_getatt():
     """
     Test that we correctly convert multi-level Fn::GetAtt
@@ -248,6 +269,7 @@ def test_flip_to_json_with_multi_level_getatt():
     actual = cfn_flip.to_json(data, clean_up=True)
 
     assert load_json(actual) == expected
+
 
 def test_getatt_from_yaml():
     """
@@ -273,6 +295,7 @@ def test_getatt_from_yaml():
     actual = cfn_flip.to_json(source, clean_up=True)
     assert load_json(actual) == expected
 
+
 def test_flip_to_json_with_condition():
     """
     Test that the Condition key is correctly converted
@@ -296,6 +319,7 @@ def test_flip_to_json_with_condition():
     actual = cfn_flip.to_json(source, clean_up=True)
     assert load_json(actual) == expected
 
+
 def test_flip_to_yaml_with_newlines():
     """
     Test that strings containing newlines are quoted
@@ -311,6 +335,7 @@ def test_flip_to_yaml_with_newlines():
     ])
 
     assert cfn_flip.to_yaml(source) == expected
+
 
 def test_clean_flip_to_yaml_with_newlines():
     """
@@ -339,6 +364,7 @@ def test_clean_flip_to_yaml_with_newlines():
 
     assert cfn_flip.to_yaml(source, clean_up=True) == expected
 
+
 def test_flip_with_json_output(input_yaml, parsed_json):
     """
     We should be able to specify that the output is JSON
@@ -347,6 +373,7 @@ def test_flip_with_json_output(input_yaml, parsed_json):
     actual = cfn_flip.flip(input_yaml, out_format="json")
 
     assert load_json(actual) == parsed_json
+
 
 def test_flip_with_yaml_output(input_json, parsed_yaml):
     """
@@ -359,6 +386,7 @@ def test_flip_with_yaml_output(input_json, parsed_yaml):
 
     assert parsed_actual == parsed_yaml
 
+
 def test_no_flip_with_json(input_json, parsed_json):
     """
     We should be able to submit JSON and get JSON back
@@ -367,6 +395,7 @@ def test_no_flip_with_json(input_json, parsed_json):
     actual = cfn_flip.flip(input_json, no_flip=True)
 
     assert load_json(actual) == parsed_json
+
 
 def test_no_flip_with_yaml(input_yaml, parsed_yaml):
     """
@@ -379,6 +408,7 @@ def test_no_flip_with_yaml(input_yaml, parsed_yaml):
 
     assert parsed_actual == parsed_yaml
 
+
 def test_no_flip_with_explicit_json(input_json, parsed_json):
     """
     We should be able to submit JSON and get JSON back
@@ -388,6 +418,7 @@ def test_no_flip_with_explicit_json(input_json, parsed_json):
     actual = cfn_flip.flip(input_json, out_format="json", no_flip=True)
 
     assert load_json(actual) == parsed_json
+
 
 def test_no_flip_with_explicit_yaml(input_yaml, parsed_yaml):
     """
@@ -401,6 +432,7 @@ def test_no_flip_with_explicit_yaml(input_yaml, parsed_yaml):
 
     assert parsed_actual == parsed_yaml
 
+
 def test_explicit_json_rejects_yaml(input_yaml):
     """
     Given an output format of YAML
@@ -411,6 +443,7 @@ def test_explicit_json_rejects_yaml(input_yaml):
     with pytest.raises(Exception, message="Invalid JSON"):
         cfn_flip.flip(input_yaml, out_format="yaml")
 
+
 def test_explicit_yaml_rejects_bad_yaml(bad_data):
     """
     Given an output format of YAML
@@ -420,6 +453,7 @@ def test_explicit_yaml_rejects_bad_yaml(bad_data):
 
     with pytest.raises(Exception, message="Invalid YAML"):
         cfn_flip.flip(bad_data, out_format="json")
+
 
 def test_flip_to_yaml_with_longhand_functions(input_json, parsed_json):
     """
@@ -433,6 +467,7 @@ def test_flip_to_yaml_with_longhand_functions(input_json, parsed_json):
 
     # We use the parsed JSON as it contains long form function calls
     assert parsed_actual == parsed_json
+
 
 def test_unconverted_types():
     """

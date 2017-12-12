@@ -10,6 +10,7 @@ or in the "license" file accompanying this file. This file is distributed on an 
 
 from cfn_tools.yaml_dumper import CfnYamlDumper
 
+
 class CleanCfnYamlDumper(CfnYamlDumper):
     """
     Format multi-line strings with |

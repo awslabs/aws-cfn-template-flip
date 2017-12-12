@@ -14,11 +14,12 @@ import yaml
 
 TAG_MAP = "tag:yaml.org,2002:map"
 UNCONVERTED_SUFFIXES = ["Ref", "Condition"]
-
 FN_PREFIX = "Fn::"
+
 
 class CfnYamlLoader(yaml.Loader):
     pass
+
 
 def multi_constructor(loader, tag_suffix, node):
     """
@@ -41,9 +42,10 @@ def multi_constructor(loader, tag_suffix, node):
     else:
         raise "Bad tag: !{}".format(tag_suffix)
 
-    return  ODict((
+    return ODict((
         (tag_suffix, constructor(node)),
     ))
+
 
 def construct_getatt(node):
     """
@@ -56,6 +58,7 @@ def construct_getatt(node):
         return [s.value for s in node.value]
     else:
         raise ValueError("Unexpected node type: {}".format(type(node.value)))
+
 
 def construct_mapping(self, node, deep=False):
     """
@@ -71,6 +74,7 @@ def construct_mapping(self, node, deep=False):
         mapping[key] = value
 
     return mapping
+
 
 # Customise our loader
 CfnYamlLoader.add_constructor(TAG_MAP, construct_mapping)

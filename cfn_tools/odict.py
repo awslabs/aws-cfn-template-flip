@@ -10,6 +10,7 @@ or in the "license" file accompanying this file. This file is distributed on an 
 
 import collections
 
+
 class odict_items(list):
     """
     Helper class to ensure ordering is preserved
@@ -29,6 +30,7 @@ class odict_items(list):
 
     def sort(self):
         pass
+
 
 class ODict(collections.OrderedDict):
     """

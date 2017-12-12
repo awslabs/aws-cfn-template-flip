@@ -10,6 +10,7 @@ or in the "license" file accompanying this file. This file is distributed on an 
 
 from cfn_tools.odict import ODict
 
+
 def convert_join(sep, parts):
     """
     Fix a Join ;)
@@ -51,6 +52,7 @@ def convert_join(sep, parts):
     return ODict((
         ("Fn::Sub", source),
     ))
+
 
 def clean(source):
     """

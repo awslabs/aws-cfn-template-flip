@@ -15,22 +15,26 @@ import yaml
 TAG_MAP = "tag:yaml.org,2002:map"
 TAG_STRING = "tag:yaml.org,2002:str"
 
+
 class CfnYamlDumper(yaml.Dumper):
     """
     Indent block sequences from parent using more common style
     ("  - entry"  vs "- entry").
     Causes fewer problems with validation and tools.
     """
-  
+
     def increase_indent(self, flow=False, indentless=False):
-        return super(CfnYamlDumper, self).increase_indent(flow, False)
+            return super(CfnYamlDumper, self).increase_indent(flow, False)
 
     def represent_scalar(self, tag, value, style=None):
-        if isinstance(value, six.text_type):
-            if "\n" in value and style is None:
-                style = "\""
+            if isinstance(value, six.text_type):
+                if "\n" in value and style is None:
+                    style = "\""
 
-        return super(CfnYamlDumper, self).represent_scalar(tag, value, style)
+                # return super(CfnYamlDumper, self).represent_scalar(TAG_STRING, value, style)
+
+            return super(CfnYamlDumper, self).represent_scalar(tag, value, style)
+
 
 def string_representer(dumper, value):
     style = None
@@ -40,12 +44,14 @@ def string_representer(dumper, value):
 
     return dumper.represent_scalar(TAG_STRING, value, style=style)
 
+
 def map_representer(dumper, value):
     """
     Map ODict into ODict to prevent sorting
     """
 
     return dumper.represent_mapping(TAG_MAP, value)
+
 
 # Customise the dumper
 CfnYamlDumper.add_representer(ODict, map_representer)

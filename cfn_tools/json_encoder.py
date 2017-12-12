@@ -11,6 +11,7 @@ or in the "license" file accompanying this file. This file is distributed on an 
 from datetime import date, datetime, time
 import json
 
+
 class DateTimeAwareJsonEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, (datetime, date, time)):

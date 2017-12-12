@@ -12,6 +12,7 @@ from cfn_clean import clean
 from cfn_clean.yaml_dumper import CleanCfnYamlDumper
 import yaml
 
+
 def test_basic_case():
     """
     As simple as it gets
@@ -29,6 +30,7 @@ def test_basic_case():
     actual = clean(source)
 
     assert expected == actual
+
 
 def test_ref():
     """
@@ -50,6 +52,7 @@ def test_ref():
 
     assert expected == actual
 
+
 def test_get_att():
     """
     Intrinsics should be replaced by parameters to Sub
@@ -70,6 +73,7 @@ def test_get_att():
 
     assert expected == actual
 
+
 def test_multi_level_get_att():
     """
     Intrinsics should be replaced by parameters to Sub
@@ -89,6 +93,7 @@ def test_multi_level_get_att():
     actual = clean(source)
 
     assert expected == actual
+
 
 def test_others():
     """
@@ -116,6 +121,7 @@ def test_others():
     actual = clean(source)
 
     assert expected == actual
+
 
 def test_in_array():
     """
@@ -160,6 +166,7 @@ def test_in_array():
 
     assert expected == actual
 
+
 def test_literals():
     """
     Test that existing ${var} in source is respected
@@ -177,6 +184,7 @@ def test_literals():
     actual = clean(source)
 
     assert expected == actual
+
 
 def test_nested_join():
     """
@@ -200,6 +208,7 @@ def test_nested_join():
     actual = clean(source)
 
     assert expected == actual
+
 
 def test_deep_nested_join():
     """
@@ -236,6 +245,7 @@ def test_deep_nested_join():
     actual = clean(source)
 
     assert expected == actual
+
 
 def test_yaml_dumper():
     """
