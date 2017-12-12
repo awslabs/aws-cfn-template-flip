@@ -460,13 +460,16 @@ def test_flip_to_yaml_with_longhand_functions(input_json, parsed_json):
     When converting to yaml, sometimes we'll want to keep the long form
     """
 
-    actual = cfn_flip.flip(input_json, long_form=True)
+    actual1 = cfn_flip.flip(input_json, long_form=True)
+    actual2 = cfn_flip.to_yaml(input_json, long_form=True)
 
     # No custom loader as there should be no custom tags
-    parsed_actual = yaml.load(actual)
+    parsed_actual1 = yaml.load(actual1)
+    parsed_actual2 = yaml.load(actual2)
 
     # We use the parsed JSON as it contains long form function calls
-    assert parsed_actual == parsed_json
+    assert parsed_actual1 == parsed_json
+    assert parsed_actual2 == parsed_json
 
 
 def test_unconverted_types():
