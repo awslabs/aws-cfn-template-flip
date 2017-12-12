@@ -2,3 +2,8 @@ Description: Test
 Foo: !Sub 'The ${cake} is a lie'
 Bar: !Base64
   Ref: Binary
+Baz: !Sub
+  - |-
+    The cake is a...
+    ${CakeStatus}
+  - CakeStatus: lie

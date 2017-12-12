@@ -8,3 +8,6 @@ Foo: !Join
     - lie
 Bar: !Base64
   Ref: Binary
+Baz: !Sub
+  - "The cake is a...\n${CakeStatus}"
+  - CakeStatus: lie
