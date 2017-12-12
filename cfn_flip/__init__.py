@@ -1,89 +1,69 @@
-"""                                                                                                      
-Copyright 2016-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.                                  
-                                                                                                         
-Licensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with the License. A copy of the License is located at                                              
-                                                                                                         
-    http://aws.amazon.com/apache2.0/                                                                     
-                                                                                                         
-or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.                                                 
+"""
+Copyright 2016-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with the License. A copy of the License is located at
+
+    http://aws.amazon.com/apache2.0/
+
+or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """
 
-from .clean import clean
-from .custom_json import DateTimeAwareJsonEncoder
-from .custom_yaml import dumper_generator, CustomLoader
-import collections
-import json
+from .yaml_dumper import get_dumper
+from cfn_clean import clean
+from cfn_tools import load_json, load_yaml, dump_json
 import yaml
 
-def _load_json(template):
-    """
-    We've decided it's JSON, so let's try to load it
-    """
 
-    try:
-        return json.loads(template, object_pairs_hook=collections.OrderedDict)
-    except ValueError:
-        raise Exception("Invalid JSON")
-
-def _load_yaml(template):
-    """
-    We've decided it's YAML, so let's try to load it
-    """
-
-    try:
-        return yaml.load(template, Loader=CustomLoader)
-    except:
-        raise Exception("Invalid YAML")
-
-def _load(template):
+def load(template):
     """
     Try to guess the input format
     """
 
     try:
-        data = _load_json(template)
+        data = load_json(template)
         return data, "json"
-    except:
-        data = _load_yaml(template)
+    except ValueError:
+        data = load_yaml(template)
         return data, "yaml"
 
-def _dump_json(data):
-    """
-    Output some JSON
-    """
 
-    return json.dumps(data, indent=4, cls=DateTimeAwareJsonEncoder)
-
-def _dump_yaml(data, clean_up=False, long_form=False):
+def dump_yaml(data, clean_up=False, long_form=False):
     """
     Output some YAML
     """
 
-    return yaml.dump(data, Dumper=dumper_generator(clean_up, long_form), default_flow_style=False)
+    return yaml.dump(
+        data,
+        Dumper=get_dumper(clean_up, long_form),
+        default_flow_style=False
+    )
+
 
 def to_json(template, clean_up=False):
     """
     Assume the input is YAML and convert to JSON
     """
 
-    data = _load_yaml(template)
+    data = load_yaml(template)
 
     if clean_up:
         data = clean(data)
 
-    return _dump_json(data)
+    return dump_json(data)
 
-def to_yaml(template, clean_up=False):
+
+def to_yaml(template, clean_up=False, long_form=False):
     """
     Assume the input is JSON and convert to YAML
     """
 
-    data = _load_json(template)
+    data = load_json(template)
 
     if clean_up:
         data = clean(data)
 
-    return _dump_yaml(data, clean_up)
+    return dump_yaml(data, clean_up, long_form)
+
 
 def flip(template, out_format=None, clean_up=False, no_flip=False, long_form=False):
     """
@@ -101,13 +81,13 @@ def flip(template, out_format=None, clean_up=False, no_flip=False, long_form=Fal
         in_format = "json"
 
     if in_format == "json":
-        data = _load_json(template)
+        data = load_json(template)
     elif in_format == "yaml":
-        data = _load_yaml(template)
+        data = load_yaml(template)
     else:
         try:
-            data, in_format = _load(template)
-        except Exception as e:
+            data, in_format = load(template)
+        except Exception:
             raise Exception("Could not determine the input format")
 
     if no_flip:
@@ -121,6 +101,6 @@ def flip(template, out_format=None, clean_up=False, no_flip=False, long_form=Fal
         data = clean(data)
 
     if out_format == "json":
-        return _dump_json(data)
+        return dump_json(data)
 
-    return _dump_yaml(data, clean_up, long_form)
+    return dump_yaml(data, clean_up, long_form)

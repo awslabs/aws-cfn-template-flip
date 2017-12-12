@@ -1,4 +1,13 @@
 Description: Test
-Foo: !Join [' ', [The, !Ref 'cake', is, a, lie]]
+Foo: !Join
+  - ' '
+  - - The
+    - !Ref 'cake'
+    - is
+    - a
+    - lie
 Bar: !Base64
   Ref: Binary
+Baz: !Sub
+  - "The cake is a...\n${CakeStatus}"
+  - CakeStatus: lie

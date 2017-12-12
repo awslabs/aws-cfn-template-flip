@@ -8,9 +8,11 @@ Licensed under the Apache License, Version 2.0 (the "License"). You may not use 
 or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """
 
-import cfn_flip
-import json
+from cfn_clean import clean
+from cfn_clean.yaml_dumper import CleanCfnYamlDumper
+from cfn_tools.odict import ODict
 import yaml
+
 
 def test_basic_case():
     """
@@ -26,9 +28,10 @@ def test_basic_case():
 
     expected = "The cake is a lie"
 
-    actual = cfn_flip.clean(source)
+    actual = clean(source)
 
     assert expected == actual
+
 
 def test_ref():
     """
@@ -46,9 +49,10 @@ def test_ref():
         "Fn::Sub": "The ${Cake} is a lie",
     }
 
-    actual = cfn_flip.clean(source)
+    actual = clean(source)
 
     assert expected == actual
+
 
 def test_get_att():
     """
@@ -66,9 +70,10 @@ def test_get_att():
         "Fn::Sub": "The ${Cake.Hole} is a lie",
     }
 
-    actual = cfn_flip.clean(source)
+    actual = clean(source)
 
     assert expected == actual
+
 
 def test_multi_level_get_att():
     """
@@ -86,9 +91,10 @@ def test_multi_level_get_att():
         "Fn::Sub": "The ${First.Second.Third} is a lie",
     }
 
-    actual = cfn_flip.clean(source)
+    actual = clean(source)
 
     assert expected == actual
+
 
 def test_others():
     """
@@ -113,9 +119,10 @@ def test_others():
         ],
     }
 
-    actual = cfn_flip.clean(source)
+    actual = clean(source)
 
     assert expected == actual
+
 
 def test_in_array():
     """
@@ -156,9 +163,10 @@ def test_in_array():
         ],
     }
 
-    actual = cfn_flip.clean(source)
+    actual = clean(source)
 
     assert expected == actual
+
 
 def test_literals():
     """
@@ -174,9 +182,10 @@ def test_literals():
 
     expected = "The ${!cake} is a lie"
 
-    actual = cfn_flip.clean(source)
+    actual = clean(source)
 
     assert expected == actual
+
 
 def test_nested_join():
     """
@@ -197,9 +206,10 @@ def test_nested_join():
 
     expected = "The cake is a lie"
 
-    actual = cfn_flip.clean(source)
+    actual = clean(source)
 
     assert expected == actual
+
 
 def test_deep_nested_join():
     """
@@ -233,6 +243,71 @@ def test_deep_nested_join():
         ]
     }
 
-    actual = cfn_flip.clean(source)
+    actual = clean(source)
 
     assert expected == actual
+
+
+def test_yaml_dumper():
+    """
+    The clean dumper should use | format for multi-line strings
+    """
+
+    source = {
+        "start": "This is\na multi-line\nstring",
+    }
+
+    actual = yaml.dump(source, Dumper=CleanCfnYamlDumper)
+
+    assert actual == """start: |-
+  This is
+  a multi-line
+  string
+"""
+
+
+def test_reused_sub_params():
+    """
+    Test that params in Joins converted to Subs get reused when possible
+    """
+
+    source = {
+        "Fn::Join": [
+            " ", [
+                "The",
+                {
+                    "Fn::Join": ["-", [{
+                        "Ref": "Cake"
+                    }, "Lie"]],
+                },
+                "is",
+                {
+                    "Fn::Join": ["-", [{
+                        "Ref": "Cake"
+                    }, "Lie"]],
+                },
+                "and isn't",
+                {
+                    "Fn::Join": ["-", [{
+                        "Ref": "Pizza"
+                    }, "Truth"]],
+                },
+            ],
+        ],
+    }
+
+    expected = ODict((
+        ("Fn::Sub", [
+            "The ${Param1} is ${Param1} and isn't ${Param2}",
+            ODict((
+                ("Param1", ODict((
+                    ("Fn::Sub", "${Cake}-Lie"),
+                ))),
+                ("Param2", ODict((
+                    ("Fn::Sub", "${Pizza}-Truth"),
+                ))),
+            )),
+        ]),
+    ))
+
+    assert clean(source) == expected
