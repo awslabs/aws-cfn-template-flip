@@ -10,6 +10,7 @@ or in the "license" file accompanying this file. This file is distributed on an 
 
 from cfn_clean import clean
 from cfn_clean.yaml_dumper import CleanCfnYamlDumper
+from cfn_tools.odict import ODict
 import yaml
 
 
@@ -263,3 +264,50 @@ def test_yaml_dumper():
   a multi-line
   string
 """
+
+
+def test_reused_sub_params():
+    """
+    Test that params in Joins converted to Subs get reused when possible
+    """
+
+    source = {
+        "Fn::Join": [
+            " ", [
+                "The",
+                {
+                    "Fn::Join": ["-", [{
+                        "Ref": "Cake"
+                    }, "Lie"]],
+                },
+                "is",
+                {
+                    "Fn::Join": ["-", [{
+                        "Ref": "Cake"
+                    }, "Lie"]],
+                },
+                "and isn't",
+                {
+                    "Fn::Join": ["-", [{
+                        "Ref": "Pizza"
+                    }, "Truth"]],
+                },
+            ],
+        ],
+    }
+
+    expected = ODict((
+        ("Fn::Sub", [
+            "The ${Param1} is ${Param1} and isn't ${Param2}",
+            ODict((
+                ("Param1", ODict((
+                    ("Fn::Sub", "${Cake}-Lie"),
+                ))),
+                ("Param2", ODict((
+                    ("Fn::Sub", "${Pizza}-Truth"),
+                ))),
+            )),
+        ]),
+    ))
+
+    assert clean(source) == expected

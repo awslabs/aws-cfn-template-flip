@@ -32,8 +32,14 @@ def convert_join(sep, parts):
                 params = part["Fn::GetAtt"]
                 parts[i] = "${{{}}}".format(".".join(params))
             else:
-                param_name = "Param{}".format(len(args) + 1)
-                args[param_name] = part
+                for name, value in args.items():
+                    if value == part:
+                        param_name = name
+                        break
+                else:
+                    param_name = "Param{}".format(len(args) + 1)
+                    args[param_name] = part
+
                 parts[i] = "${{{}}}".format(param_name)
 
         else:
