@@ -11,3 +11,6 @@
 .cache/
 .coverage
 .tox/
+
+# IDE
+.idea/
