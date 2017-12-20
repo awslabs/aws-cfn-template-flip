@@ -11,7 +11,7 @@ or in the "license" file accompanying this file. This file is distributed on an 
 import collections
 
 
-class odict_items(list):
+class OdictItems(list):
     """
     Helper class to ensure ordering is preserved
     """
@@ -26,7 +26,7 @@ class odict_items(list):
 
             new_items.append(C(item))
 
-        return super(odict_items, self).__init__(new_items)
+        return super(OdictItems, self).__init__(new_items)
 
     def sort(self):
         pass
@@ -45,4 +45,4 @@ class ODict(collections.OrderedDict):
         super(ODict, self).__init__(pairs)
 
         old_items = self.items
-        self.items = lambda: odict_items(old_items())
+        self.items = lambda: OdictItems(old_items())

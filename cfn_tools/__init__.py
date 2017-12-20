@@ -21,7 +21,7 @@ def load_json(source):
 
 
 def dump_json(source):
-    return json.dumps(source, indent=4, cls=DateTimeAwareJsonEncoder)
+    return json.dumps(source, indent=4, cls=DateTimeAwareJsonEncoder, separators=(',', ': '))
 
 
 def load_yaml(source):
