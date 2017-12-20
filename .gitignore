@@ -13,6 +13,7 @@
 .coverage
 .tox/
 /htmlcov/
+.eggs/
 
 # IDE
 .idea/
