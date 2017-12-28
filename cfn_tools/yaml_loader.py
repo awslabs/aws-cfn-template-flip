@@ -53,7 +53,7 @@ def construct_getatt(node):
     """
 
     if isinstance(node.value, six.text_type):
-        return node.value.split(".")
+        return node.value.split(".", 1)
     elif isinstance(node.value, list):
         return [s.value for s in node.value]
     else:

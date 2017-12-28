@@ -263,7 +263,7 @@ def test_flip_to_json_with_multi_level_getatt():
     data = "!GetAtt 'First.Second.Third'\n"
 
     expected = {
-        "Fn::GetAtt": ["First", "Second", "Third"]
+        "Fn::GetAtt": ["First", "Second.Third"]
     }
 
     actual = cfn_flip.to_json(data, clean_up=True)
