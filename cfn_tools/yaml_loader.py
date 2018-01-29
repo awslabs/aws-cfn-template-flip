@@ -40,7 +40,7 @@ def multi_constructor(loader, tag_suffix, node):
     elif isinstance(node, yaml.MappingNode):
         constructor = loader.construct_mapping
     else:
-        raise "Bad tag: !{}".format(tag_suffix)
+        raise Exception("Bad tag: !{}".format(tag_suffix))
 
     return ODict((
         (tag_suffix, constructor(node)),

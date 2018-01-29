@@ -1,11 +1,14 @@
 """
 Copyright 2016-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 
-Licensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with the License. A copy of the License is located at
+Licensed under the Apache License, Version 2.0 (the "License").
+You may not use this file except in compliance with the License. A copy of the License is located at
 
     http://aws.amazon.com/apache2.0/
 
-or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and limitations under the License.
 """
 
 from cfn_tools import dump_json, load_json, load_yaml
@@ -492,3 +495,12 @@ def test_unconverted_types():
         expected = "{} 'something'\n".format(tag)
 
         assert cfn_flip.to_yaml(value) == expected
+
+
+def test_get_dumper():
+    """
+    When invoking get_dumper use clean_up & long_form
+    :return: LongCleanDumper
+    """
+    resp = cfn_flip.get_dumper(clean_up=True, long_form=True)
+    assert resp == cfn_flip.yaml_dumper.LongCleanDumper
