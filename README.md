@@ -1,4 +1,5 @@
 [![Build Status](https://www.travis-ci.org/awslabs/aws-cfn-template-flip.svg?branch=master)](https://www.travis-ci.org/awslabs/aws-cfn-template-flip)
+[![PyPI version](https://badge.fury.io/py/cfn_flip.svg)](https://badge.fury.io/py/cfn_flip)
 
 # AWS CloudFormation Template Flip
 
