@@ -15,7 +15,9 @@ See the License for the specific language governing permissions and limitations 
 from cfn_clean.yaml_dumper import CleanCfnYamlDumper
 from cfn_tools.odict import ODict
 from cfn_tools.yaml_dumper import CfnYamlDumper
+import six
 
+TAG_STR = "tag:yaml.org,2002:str"
 TAG_MAP = "tag:yaml.org,2002:map"
 CONVERTED_SUFFIXES = ["Ref", "Condition"]
 
@@ -44,6 +46,13 @@ class LongCleanDumper(CleanCfnYamlDumper):
     """
     Preserves long-form function syntax
     """
+
+
+def string_representer(dumper, value):
+    if value.startswith("0"):
+        return dumper.represent_scalar(TAG_STR, value, style="'")
+
+    return dumper.represent_scalar(TAG_STR, value)
 
 
 def fn_representer(dumper, fn_name, value):
@@ -82,6 +91,7 @@ def map_representer(dumper, value):
 
 # Customise our dumpers
 Dumper.add_representer(ODict, map_representer)
+Dumper.add_representer(six.text_type, string_representer)
 CleanDumper.add_representer(ODict, map_representer)
 
 

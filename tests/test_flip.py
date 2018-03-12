@@ -502,5 +502,39 @@ def test_get_dumper():
     When invoking get_dumper use clean_up & long_form
     :return: LongCleanDumper
     """
+
     resp = cfn_flip.get_dumper(clean_up=True, long_form=True)
     assert resp == cfn_flip.yaml_dumper.LongCleanDumper
+
+
+def test_quoted_digits():
+    """
+    Any value that is composed entirely of digits
+    should be quoted for safety.
+    CloudFormation is happy for numbers to appear as strings.
+    But the opposite (e.g. account numbers as numbers) can cause issues
+    See https://github.com/awslabs/aws-cfn-template-flip/issues/41
+    """
+
+    value = dump_json(ODict((
+        ("int", 123456),
+        ("float", 123.456),
+        ("oct", "0123456"),
+        ("bad-oct", "012345678"),
+        ("safe-oct", "0o123456"),
+        ("string", "abcdef"),
+    )))
+
+    expected = "\n".join((
+        "int: 123456",
+        "float: 123.456",
+        "oct: '0123456'",
+        "bad-oct: '012345678'",
+        "safe-oct: '0o123456'",
+        "string: abcdef",
+        ""
+    ))
+
+    actual = cfn_flip.to_yaml(value)
+
+    assert actual == expected
