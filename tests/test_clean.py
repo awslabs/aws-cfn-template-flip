@@ -251,6 +251,71 @@ def test_deep_nested_join():
     assert expected == actual
 
 
+def test_misused_join():
+    """
+    Test that we don't break in the case that there is
+    a Fn::Join with a single element instead of a list.
+    We'll just return the Join as it was unless it's clearly just a string.
+    """
+
+    cases = (
+        {
+            "Fn::Join": [
+                " ",
+                "foo",
+            ],
+        },
+        {
+            "Fn::Join": "Just a string",
+        },
+        {
+            "Fn::Join": [
+                " ",
+                {
+                    "Ref": "foo",
+                },
+            ],
+        },
+        {
+            "Fn::Join": [
+                "-",
+                [
+                    {"Ref": "This is fine"},
+                    ["But this is unexpected"],
+                ]
+            ],
+        }
+    )
+
+    expecteds = (
+        "foo",
+        "Just a string",
+        {
+            "Fn::Join": [
+                " ",
+                {
+                    "Ref": "foo",
+                },
+            ],
+        },
+        {
+            "Fn::Join": [
+                "-",
+                [
+                    {"Ref": "This is fine"},
+                    ["But this is unexpected"],
+                ]
+            ],
+        }
+    )
+
+    for i, case in enumerate(cases):
+        expected = expecteds[i]
+
+        actual = clean(case)
+        assert expected == actual
+
+
 def test_yaml_dumper():
     """
     The clean dumper should use | format for multi-line strings

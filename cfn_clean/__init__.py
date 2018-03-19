@@ -12,43 +12,66 @@ See the License for the specific language governing permissions and limitations 
 """
 
 from cfn_tools.odict import ODict
+import six
 
 
-def convert_join(sep, parts):
+def convert_join(value):
     """
     Fix a Join ;)
     """
 
+    if not isinstance(value, list) or len(value) != 2:
+        # Cowardly refuse
+        return value
+
+    sep, parts = value[0], value[1]
+
+    if isinstance(parts, six.string_types):
+        return parts
+
+    if not isinstance(parts, list):
+        # This looks tricky, just return the join as it was
+        return {
+            "Fn::Join": value,
+        }
+
     plain_string = True
 
     args = ODict()
+    new_parts = []
 
-    for i, part in enumerate(parts):
+    for part in parts:
         part = clean(part)
 
         if isinstance(part, dict):
             plain_string = False
 
             if "Ref" in part:
-                parts[i] = "${{{}}}".format(part["Ref"])
+                new_parts.append("${{{}}}".format(part["Ref"]))
             elif "Fn::GetAtt" in part:
                 params = part["Fn::GetAtt"]
-                parts[i] = "${{{}}}".format(".".join(params))
+                new_parts.append("${{{}}}".format(".".join(params)))
             else:
-                for name, value in args.items():
-                    if value == part:
-                        param_name = name
+                for key, val in args.items():
+                    if val == part:
+                        param_name = key
                         break
                 else:
                     param_name = "Param{}".format(len(args) + 1)
                     args[param_name] = part
 
-                parts[i] = "${{{}}}".format(param_name)
+                new_parts.append("${{{}}}".format(param_name))
+
+        elif isinstance(part, six.string_types):
+            new_parts.append(part.replace("${", "${!"))
 
         else:
-            parts[i] = part.replace("${", "${!")
+            # Doing something weird; refuse
+            return {
+                "Fn::Join": value
+            }
 
-    source = sep.join(parts)
+    source = sep.join(new_parts)
 
     if plain_string:
         return source
@@ -72,7 +95,7 @@ def clean(source):
     if isinstance(source, dict):
         for key, value in source.items():
             if key == "Fn::Join":
-                return convert_join(value[0], value[1])
+                return convert_join(value)
             else:
                 source[key] = clean(value)
 
