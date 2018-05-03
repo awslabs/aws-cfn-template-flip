@@ -31,7 +31,7 @@ def main(**kwargs):
     """
     AWS CloudFormation Template Flip is a tool that converts
     AWS CloudFormation templates between JSON and YAML formats,
-    making use of the YAML format's short function syntax where possible."
+    making use of the YAML format's short function syntax where possible.
     """
     out_format = kwargs.pop('out_format')
     no_flip = kwargs.pop('no_flip')
