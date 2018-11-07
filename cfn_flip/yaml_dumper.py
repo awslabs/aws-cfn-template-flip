@@ -55,11 +55,37 @@ def string_representer(dumper, value):
     return dumper.represent_scalar(TAG_STR, value)
 
 
+def join_compactor(joiner, values):
+    def ref_packer(value):
+        tag = None
+        if isinstance(value, ODict):
+            tag, value = list(value.items())[0]
+
+        if tag is None:
+            return value
+        if tag in ('!Sub', 'Sub'):
+            return value
+        if tag in ('Fn::GetAtt', 'GetAtt') and isinstance(value, list):
+            return '${%s}' %  '.'.join(value)
+        if tag in ('Fn::Ref', 'Ref', 'Fn::GetAtt', 'GetAtt'):
+            return '${%s}' % value
+        else:
+            raise ValueError("Item in Fn::Join could not be compacted into a !Sub. Failed item: {}".format(value))
+
+    return '!Sub', joiner.join([ref_packer(v) for v in values])
+
+
 def fn_representer(dumper, fn_name, value):
     tag = "!{}".format(fn_name)
 
     if tag == "!GetAtt" and isinstance(value, list):
         value = ".".join(value)
+
+    if tag == "!Join":
+        try:
+            tag, value = join_compactor(*value)
+        except ValueError:
+            pass
 
     if isinstance(value, list):
         return dumper.represent_sequence(tag, value)
