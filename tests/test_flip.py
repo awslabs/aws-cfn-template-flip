@@ -98,7 +98,7 @@ def test_to_json_with_json(input_json, parsed_json):
     assert load_json(actual) == parsed_json
 
 
-def test_to_yaml_with_long_json(input_long_json, parsed_yaml):
+def test_to_yaml_with_long_json(input_long_json):
     """
     Test that to_yaml performs correctly
     """
@@ -110,11 +110,10 @@ def test_to_yaml_with_long_json(input_long_json, parsed_yaml):
         load_json(actual)
 
     parsed_actual = load_yaml(actual)
-    print('actual', actual)
 
     assert parsed_actual['TooShort'] == "foo\nbar\nbaz\nquuux"
-    assert 'LongText: |' in actual
-    assert 'TooShort: Two' in actual
+    assert 'WideText: >-' in actual
+    assert 'TooShort: "foo' in actual
 
 
 def test_to_yaml_with_json(input_json, parsed_yaml):
