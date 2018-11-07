@@ -49,6 +49,12 @@ class LongCleanDumper(CleanCfnYamlDumper):
 
 
 def string_representer(dumper, value):
+    if sum(1 for nl in value if nl in ('\n', '\r')) >= 10:
+        return dumper.represent_scalar(TAG_STR, value, style="|")
+
+    if len(value) > 200 and '\n' not in value:
+        return dumper.represent_scalar(TAG_STR, value, style=">")
+
     if value.startswith("0"):
         return dumper.represent_scalar(TAG_STR, value, style="'")
 
