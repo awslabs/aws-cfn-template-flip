@@ -1,4 +1,4 @@
-Click
-PyYAML
-six
-tox
+Click==7.0
+PyYAML==3.13
+six==1.11.0
+tox==3.5.3
