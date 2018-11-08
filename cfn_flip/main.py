@@ -21,9 +21,7 @@ import sys
 @click.option("--yaml", "-y", "out_format", flag_value="yaml", help="Convert to YAML. Assume the input is JSON.")
 @click.option("--clean", "-c", is_flag=True, help="Performs some opinionated cleanup on your template.")
 @click.option("--long", "-l", is_flag=True, help="Use long-form syntax for functions when converting to YAML.")
-@click.option("--no-flip", "-n", is_flag=True, help="Don't convert. If you use -n in conjunction with -j or -y, " +
-                                                    "the input format is assumed to be the same as the output format" +
-                                                    " you specify.")
+@click.option("--no-flip", "-n", is_flag=True, help="Perform other operations but do not flip the output format.")
 @click.argument("input", type=click.File("r"), default=sys.stdin)
 @click.argument("output", type=click.File("w"), default=sys.stdout)
 @click.version_option(message='AWS Cloudformation Template Flip, Version %(version)s')

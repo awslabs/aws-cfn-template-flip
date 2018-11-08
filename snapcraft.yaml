@@ -3,6 +3,7 @@ version: git
 summary: Converts AWS CloudFormation templates between JSON and YAML formats.
 description: |
   AWS CloudFormation Template Flip is a tool that converts AWS CloudFormation templates between JSON and YAML formats, making use of the YAML format’s short function syntax where possible.
+
   The term "Flip" is inspired by the well-known Unix command-line tool flip which converts text files between Unix, Mac, and MS-DOS formats.
 
 parts:
