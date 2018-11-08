@@ -6,6 +6,8 @@ description: |
 
   The term "Flip" is inspired by the well-known Unix command-line tool flip which converts text files between Unix, Mac, and MS-DOS formats.
 
+grade: stable
+
 parts:
   cfn-flip:
     plugin: python
