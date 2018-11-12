@@ -23,6 +23,11 @@ CONVERTED_SUFFIXES = ["Ref", "Condition"]
 
 FN_PREFIX = "Fn::"
 
+# Maximum length of a string before switching to angle-bracket-style representation
+STR_MAX_LENGTH_QUOTED = 200
+# Maximum number of newlines a string can have before switching to pipe-style representation
+STR_MAX_LINES_QUOTED = 10
+
 
 class Dumper(CfnYamlDumper):
     """
@@ -49,6 +54,12 @@ class LongCleanDumper(CleanCfnYamlDumper):
 
 
 def string_representer(dumper, value):
+    if sum(1 for nl in value if nl in ('\n', '\r')) >= STR_MAX_LINES_QUOTED:
+        return dumper.represent_scalar(TAG_STR, value, style="|")
+
+    if len(value) >= STR_MAX_LENGTH_QUOTED and '\n' not in value:
+        return dumper.represent_scalar(TAG_STR, value, style=">")
+
     if value.startswith("0"):
         return dumper.represent_scalar(TAG_STR, value, style="'")
 

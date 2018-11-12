@@ -25,6 +25,12 @@ def input_json():
 
 
 @pytest.fixture
+def input_long_json():
+    with open("examples/test_long.json", "r") as f:
+        return f.read().strip()
+
+
+@pytest.fixture
 def input_yaml():
     with open("examples/test.yaml", "r") as f:
         return f.read().strip()
@@ -90,6 +96,24 @@ def test_to_json_with_json(input_json, parsed_json):
     actual = cfn_flip.to_json(input_json)
 
     assert load_json(actual) == parsed_json
+
+
+def test_to_yaml_with_long_json(input_long_json):
+    """
+    Test that to_yaml performs correctly
+    """
+
+    actual = cfn_flip.to_yaml(input_long_json)
+
+    # The result should not parse as json
+    with pytest.raises(ValueError):
+        load_json(actual)
+
+    parsed_actual = load_yaml(actual)
+
+    assert parsed_actual['TooShort'] == "foo\nbar\nbaz\nquuux"
+    assert 'WideText: >-' in actual
+    assert 'TooShort: "foo' in actual
 
 
 def test_to_yaml_with_json(input_json, parsed_yaml):
