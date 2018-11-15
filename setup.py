@@ -20,12 +20,12 @@ setup(
     license="Apache2",
     packages=find_packages(exclude=["tests"]),
     install_requires=[
-        "Click",
-        "PyYAML",
-        "six",
+        "Click==7.0",
+        "PyYAML==3.13",
+        "six==1.11.0",
     ],
-    setup_requires=['pytest-runner'],
-    tests_require=['pytest', 'pytest-cov'],
+    setup_requires=['pytest-runner==4.2'],
+    tests_require=['pytest==3.3.2', 'pytest-cov==2.6.0'],
     zip_safe=False,
     entry_points={
         "console_scripts": ["cfn-flip=cfn_flip.main:main"],
