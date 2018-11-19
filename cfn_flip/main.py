@@ -27,7 +27,8 @@ import sys
 @click.argument("input", type=click.File("r"), default=sys.stdin)
 @click.argument("output", type=click.File("w"), default=sys.stdout)
 @click.version_option(message='AWS Cloudformation Template Flip, Version %(version)s')
-def main(**kwargs):
+@click.pass_context
+def main(ctx, **kwargs):
     """
     AWS CloudFormation Template Flip is a tool that converts
     AWS CloudFormation templates between JSON and YAML formats,
@@ -46,6 +47,10 @@ def main(**kwargs):
             in_format = "json"
         elif input_file.name.endswith(".yaml") or input_file.name.endswith(".yml"):
             in_format = "yaml"
+
+    if input_file.name == "<stdin>" and sys.stdin.isatty():
+        click.echo(ctx.get_help())
+        ctx.exit()
 
     try:
         output_file.write(flip(
