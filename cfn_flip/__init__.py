@@ -25,9 +25,12 @@ def load(template):
     try:
         data = load_json(template)
         return data, "json"
-    except ValueError:
-        data = load_yaml(template)
-        return data, "yaml"
+    except ValueError as e:
+        try:
+            data = load_yaml(template)
+            return data, "yaml"
+        except:
+            raise e
 
 
 def dump_yaml(data, clean_up=False, long_form=False):
@@ -88,10 +91,7 @@ def flip(template, out_format=None, clean_up=False, no_flip=False, long_form=Fal
     elif in_format == "yaml":
         data = load_yaml(template)
     else:
-        try:
-            data, in_format = load(template)
-        except Exception:
-            raise Exception("Could not determine the input format")
+        data, in_format = load(template)
 
     if no_flip:
         out_format = in_format

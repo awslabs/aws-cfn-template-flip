@@ -58,3 +58,12 @@ def test_cli_with_invalid_input():
     result = runner.invoke(main.main, ['--yaml', 'examples/invalid.json'])
     assert result.exception
     assert result.exit_code == 1
+    assert result.output == "Error: Expecting property name enclosed in double quotes: line 2 column 3 (char 4)\n"
+
+
+def test_format_detection_with_invalid_input():
+    runner = CliRunner()
+    result = runner.invoke(main.main, ['examples/invalid.json'])
+    assert result.exception
+    assert result.exit_code == 1
+    assert result.output == "Error: Expecting property name enclosed in double quotes: line 2 column 3 (char 4)\n"
