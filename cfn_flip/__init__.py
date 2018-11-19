@@ -76,34 +76,26 @@ def flip(template, out_format=None, clean_up=False, no_flip=False, long_form=Fal
     Figure out the input format and convert the data to the opposing output format
     """
 
-    data = None
-    in_format = None
-
-    if no_flip:
-        in_format = out_format
-    elif out_format == "json":
-        in_format = "yaml"
-    elif out_format == "yaml":
+    # Load the template as JSON?
+    if (out_format == "json" and no_flip) or (out_format == "yaml" and not no_flip):
         in_format = "json"
-
-    if in_format == "json":
         data = load_json(template)
-    elif in_format == "yaml":
+
+    # Load the template as YAML?
+    elif (out_format == "yaml" and no_flip) or (out_format == "json" and not no_flip):
+        in_format = "yaml"
         data = load_yaml(template)
+
+    # Try to figure out what format the template is
     else:
         data, in_format = load(template)
 
-    if no_flip:
-        out_format = in_format
-    elif in_format == "json":
-        out_format = "yaml"
-    else:
-        out_format = "json"
-
+    # Clean up?
     if clean_up:
         data = clean(data)
 
-    if out_format == "json":
+    # Decide on the output format
+    if (in_format == "json" and no_flip) or (in_format == "yaml" and not no_flip):
         return dump_json(data)
 
     return dump_yaml(data, clean_up, long_form)
