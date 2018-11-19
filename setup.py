@@ -12,8 +12,10 @@ from setuptools import setup, find_packages
 
 setup(
     name="cfn_flip",
-    version="1.1.0",
+    version="1.1.0.post1",
     description="Convert AWS CloudFormation templates between JSON and YAML formats",
+    long_description=open("README.md").read(),
+    long_description_content_type="text/markdown",
     url="https://github.com/awslabs/aws-cfn-template-flip",
     author="Steve Engledow",
     author_email="sengledo@amazon.co.uk",
