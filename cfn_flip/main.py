@@ -19,6 +19,8 @@ import sys
 @click.command()
 @click.option("--json", "-j", "out_format", flag_value="json", help="Convert to JSON. Assume the input is YAML.")
 @click.option("--yaml", "-y", "out_format", flag_value="yaml", help="Convert to YAML. Assume the input is JSON.")
+@click.option("--input", "-i", "in_format", type=click.Choice(["json", "yaml"]), help="Specify the input format.")
+@click.option("--output", "-o", "out_format", type=click.Choice(["json", "yaml"]), help="Specify the output format.")
 @click.option("--clean", "-c", is_flag=True, help="Performs some opinionated cleanup on your template.")
 @click.option("--long", "-l", is_flag=True, help="Use long-form syntax for functions when converting to YAML.")
 @click.option("--no-flip", "-n", is_flag=True, help="Perform other operations but do not flip the output format.")
@@ -31,6 +33,7 @@ def main(**kwargs):
     AWS CloudFormation templates between JSON and YAML formats,
     making use of the YAML format's short function syntax where possible.
     """
+    in_format = kwargs.pop('in_format')
     out_format = kwargs.pop('out_format')
     no_flip = kwargs.pop('no_flip')
     clean = kwargs.pop('clean')
@@ -47,6 +50,7 @@ def main(**kwargs):
     try:
         output_file.write(flip(
             input_file.read(),
+            in_format=in_format,
             out_format=out_format,
             clean_up=clean,
             no_flip=no_flip,

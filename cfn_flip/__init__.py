@@ -71,22 +71,24 @@ def to_yaml(template, clean_up=False, long_form=False):
     return dump_yaml(data, clean_up, long_form)
 
 
-def flip(template, out_format=None, clean_up=False, no_flip=False, long_form=False):
+def flip(template, in_format=None, out_format=None, clean_up=False, no_flip=False, long_form=False):
     """
     Figure out the input format and convert the data to the opposing output format
     """
 
-    # Load the template as JSON?
-    if (out_format == "json" and no_flip) or (out_format == "yaml" and not no_flip):
-        in_format = "json"
+    # Do we need to figure out the input format?
+    if not in_format:
+        # Load the template as JSON?
+        if (out_format == "json" and no_flip) or (out_format == "yaml" and not no_flip):
+            in_format = "json"
+        elif (out_format == "yaml" and no_flip) or (out_format == "json" and not no_flip):
+            in_format = "yaml"
+
+    # Load the data
+    if in_format == "json":
         data = load_json(template)
-
-    # Load the template as YAML?
-    elif (out_format == "yaml" and no_flip) or (out_format == "json" and not no_flip):
-        in_format = "yaml"
+    elif in_format == "yaml":
         data = load_yaml(template)
-
-    # Try to figure out what format the template is
     else:
         data, in_format = load(template)
 
@@ -94,8 +96,15 @@ def flip(template, out_format=None, clean_up=False, no_flip=False, long_form=Fal
     if clean_up:
         data = clean(data)
 
-    # Decide on the output format
-    if (in_format == "json" and no_flip) or (in_format == "yaml" and not no_flip):
+    # Figure out the output format
+    if not out_format:
+        if (in_format == "json" and no_flip) or (in_format == "yaml" and not no_flip):
+            out_format = "json"
+        else:
+            out_format = "yaml"
+
+    # Finished!
+    if out_format == "json":
         return dump_json(data)
 
     return dump_yaml(data, clean_up, long_form)
