@@ -37,6 +37,13 @@ def main(**kwargs):
     long_form = kwargs.pop('long')
     input_file = kwargs.pop('input')
     output_file = kwargs.pop('output')
+
+    if not out_format:
+        if input_file.name.endswith(".json"):
+            out_format = "yaml"
+        elif input_file.name.endswith(".yaml") or input_file.name.endswith(".yml"):
+            out_format = "json"
+
     try:
         output_file.write(flip(
             input_file.read(),

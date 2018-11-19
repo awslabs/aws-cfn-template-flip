@@ -29,7 +29,7 @@ def load(template):
         try:
             data = load_yaml(template)
             return data, "yaml"
-        except:
+        except Exception:
             raise e
 
 
