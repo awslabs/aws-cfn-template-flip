@@ -55,6 +55,103 @@ def test_cli_with_input_yaml(tmpdir):
 
 def test_cli_with_invalid_input():
     runner = CliRunner()
-    result = runner.invoke(main.main, ['--yaml', 'examples/invalid.json'])
+    result = runner.invoke(main.main, ['--yaml', 'examples/invalid'])
     assert result.exception
     assert result.exit_code == 1
+    assert result.output.startswith("Error: Expecting property name")
+
+
+def test_format_detection_with_invalid_input():
+    runner = CliRunner()
+    result = runner.invoke(main.main, ['examples/invalid'])
+    assert result.exception
+    assert result.exit_code == 1
+    assert result.output.startswith("Error: Expecting property name")
+
+
+def test_specified_json_input_with_guessed_output(tmpdir):
+    file_standard = open('examples/test.yaml', 'r').read()
+    file_output = tmpdir.join('unit_test.yaml')
+
+    runner = CliRunner()
+    result = runner.invoke(main.main, ['-i', 'json', 'examples/test.json', file_output.strpath])
+    assert not result.exception
+    assert result.exit_code == 0
+    assert file_output.read() == file_standard
+
+
+def test_specified_yaml_input_with_guessed_output(tmpdir):
+    file_standard = open('examples/test.json', 'r').read()
+    file_output = tmpdir.join('unit_test.yaml')
+
+    runner = CliRunner()
+    result = runner.invoke(main.main, ['-i', 'yaml', 'examples/test.yaml', file_output.strpath])
+    assert not result.exception
+    assert result.exit_code == 0
+    assert file_output.read() == file_standard
+
+
+def test_specified_json_input_with_no_flip(tmpdir):
+    file_standard = open('examples/test.json', 'r').read()
+    file_output = tmpdir.join('unit_test.json')
+
+    runner = CliRunner()
+    result = runner.invoke(main.main, ['-i', 'json', '-n', 'examples/test.json', file_output.strpath])
+    assert not result.exception
+    assert result.exit_code == 0
+    assert file_output.read() == file_standard
+
+
+def test_specified_yaml_input_with_no_flip(tmpdir):
+    file_standard = open('examples/test.yaml', 'r').read()
+    file_output = tmpdir.join('unit_test.yaml')
+
+    runner = CliRunner()
+    result = runner.invoke(main.main, ['-i', 'yaml', '-n', 'examples/test.yaml', file_output.strpath])
+    assert not result.exception
+    assert result.exit_code == 0
+    assert file_output.read() == file_standard
+
+
+def test_no_flip_is_overriden_by_specified_json_output(tmpdir):
+    file_standard = open('examples/test.json', 'r').read()
+    file_output = tmpdir.join('unit_test.json')
+
+    runner = CliRunner()
+    result = runner.invoke(main.main, ['-o', 'json', '-n', 'examples/test.yaml', file_output.strpath])
+    assert not result.exception
+    assert result.exit_code == 0
+    assert file_output.read() == file_standard
+
+
+def test_no_flip_is_overriden_by_specified_yaml_output(tmpdir):
+    file_standard = open('examples/test.yaml', 'r').read()
+    file_output = tmpdir.join('unit_test.yaml')
+
+    runner = CliRunner()
+    result = runner.invoke(main.main, ['-o', 'yaml', '-n', 'examples/test.json', file_output.strpath])
+    assert not result.exception
+    assert result.exit_code == 0
+    assert file_output.read() == file_standard
+
+
+def test_specified_json_output_overrides_j_flag(tmpdir):
+    file_standard = open('examples/test.json', 'r').read()
+    file_output = tmpdir.join('unit_test.json')
+
+    runner = CliRunner()
+    result = runner.invoke(main.main, ['-o', 'json', '-y', 'examples/test.json', file_output.strpath])
+    assert not result.exception
+    assert result.exit_code == 0
+    assert file_output.read() == file_standard
+
+
+def test_specified_yaml_output_overrides_j_flag(tmpdir):
+    file_standard = open('examples/test.yaml', 'r').read()
+    file_output = tmpdir.join('unit_test.yaml')
+
+    runner = CliRunner()
+    result = runner.invoke(main.main, ['-o', 'yaml', '-j', 'examples/test.yaml', file_output.strpath])
+    assert not result.exception
+    assert result.exit_code == 0
+    assert file_output.read() == file_standard

@@ -25,9 +25,12 @@ def load(template):
     try:
         data = load_json(template)
         return data, "json"
-    except ValueError:
-        data = load_yaml(template)
-        return data, "yaml"
+    except ValueError as e:
+        try:
+            data = load_yaml(template)
+            return data, "yaml"
+        except Exception:
+            raise e
 
 
 def dump_yaml(data, clean_up=False, long_form=False):
@@ -68,41 +71,39 @@ def to_yaml(template, clean_up=False, long_form=False):
     return dump_yaml(data, clean_up, long_form)
 
 
-def flip(template, out_format=None, clean_up=False, no_flip=False, long_form=False):
+def flip(template, in_format=None, out_format=None, clean_up=False, no_flip=False, long_form=False):
     """
     Figure out the input format and convert the data to the opposing output format
     """
 
-    data = None
-    in_format = None
+    # Do we need to figure out the input format?
+    if not in_format:
+        # Load the template as JSON?
+        if (out_format == "json" and no_flip) or (out_format == "yaml" and not no_flip):
+            in_format = "json"
+        elif (out_format == "yaml" and no_flip) or (out_format == "json" and not no_flip):
+            in_format = "yaml"
 
-    if no_flip:
-        in_format = out_format
-    elif out_format == "json":
-        in_format = "yaml"
-    elif out_format == "yaml":
-        in_format = "json"
-
+    # Load the data
     if in_format == "json":
         data = load_json(template)
     elif in_format == "yaml":
         data = load_yaml(template)
     else:
-        try:
-            data, in_format = load(template)
-        except Exception:
-            raise Exception("Could not determine the input format")
+        data, in_format = load(template)
 
-    if no_flip:
-        out_format = in_format
-    elif in_format == "json":
-        out_format = "yaml"
-    else:
-        out_format = "json"
-
+    # Clean up?
     if clean_up:
         data = clean(data)
 
+    # Figure out the output format
+    if not out_format:
+        if (in_format == "json" and no_flip) or (in_format == "yaml" and not no_flip):
+            out_format = "json"
+        else:
+            out_format = "yaml"
+
+    # Finished!
     if out_format == "json":
         return dump_json(data)
 
