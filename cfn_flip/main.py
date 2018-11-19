@@ -17,10 +17,10 @@ import sys
 
 
 @click.command()
-@click.option("--json", "-j", "out_format", flag_value="json", help="Convert to JSON. Assume the input is YAML.")
-@click.option("--yaml", "-y", "out_format", flag_value="yaml", help="Convert to YAML. Assume the input is JSON.")
-@click.option("--input", "-i", "in_format", type=click.Choice(["json", "yaml"]), help="Specify the input format.")
-@click.option("--output", "-o", "out_format", type=click.Choice(["json", "yaml"]), help="Specify the output format.")
+@click.option("--input", "-i", "in_format", type=click.Choice(["json", "yaml"]), help="Specify the input format. Overrides -j and -y flags.")
+@click.option("--output", "-o", "out_format", type=click.Choice(["json", "yaml"]), help="Specify the output format. Overrides -j, -y, and -n flags.")
+@click.option("--json", "-j", "out_flag", flag_value="json", help="Convert to JSON. Assume the input is YAML.")
+@click.option("--yaml", "-y", "out_flag", flag_value="yaml", help="Convert to YAML. Assume the input is JSON.")
 @click.option("--clean", "-c", is_flag=True, help="Performs some opinionated cleanup on your template.")
 @click.option("--long", "-l", is_flag=True, help="Use long-form syntax for functions when converting to YAML.")
 @click.option("--no-flip", "-n", is_flag=True, help="Perform other operations but do not flip the output format.")
@@ -34,18 +34,18 @@ def main(**kwargs):
     making use of the YAML format's short function syntax where possible.
     """
     in_format = kwargs.pop('in_format')
-    out_format = kwargs.pop('out_format')
+    out_format = kwargs.pop('out_format') or kwargs.pop('out_flag')
     no_flip = kwargs.pop('no_flip')
     clean = kwargs.pop('clean')
     long_form = kwargs.pop('long')
     input_file = kwargs.pop('input')
     output_file = kwargs.pop('output')
 
-    if not out_format:
+    if not in_format:
         if input_file.name.endswith(".json"):
-            out_format = "yaml"
+            in_format = "json"
         elif input_file.name.endswith(".yaml") or input_file.name.endswith(".yml"):
-            out_format = "json"
+            in_format = "yaml"
 
     try:
         output_file.write(flip(
