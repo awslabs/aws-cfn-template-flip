@@ -25,24 +25,32 @@ Note that the command line tool is spelled `cfn-flip` with a hyphen, while the p
 
 ### Command line tool
 
-    Usage: cfn-flip [OPTIONS] [INPUT] [OUTPUT]
+```
+Usage: cfn-flip [OPTIONS] [INPUT] [OUTPUT]
 
-      AWS CloudFormation Template Flip is a tool that converts AWS
-      CloudFormation templates between JSON and YAML formats, making use of the
-      YAML format's short function syntax where possible."
+  AWS CloudFormation Template Flip is a tool that converts AWS
+  CloudFormation templates between JSON and YAML formats, making use of the
+  YAML format's short function syntax where possible."
 
-    Options:
-      -j, --json     Convert to JSON. Assume the input is YAML.
-      -y, --yaml     Convert to YAML. Assume the input is JSON.
-      -c, --clean    Performs some opinionated cleanup on your template.
-      -l, --long     Use long-form syntax for functions when converting to YAML.
-      -n, --no-flip  Don't convert. If you use -n in conjunction with -j or -y,
-                     the input format is assumed to be the same as the output
-                     format you specify.
-      --help         Show this message and exit.
+Options:
+  -i, --input [json|yaml]   Specify the input format. Overrides -j and -y
+                            flags.
+  -o, --output [json|yaml]  Specify the output format. Overrides -j, -y, and
+                            -n flags.
+  -j, --json                Convert to JSON. Assume the input is YAML.
+  -y, --yaml                Convert to YAML. Assume the input is JSON.
+  -c, --clean               Performs some opinionated cleanup on your
+                            template.
+  -l, --long                Use long-form syntax for functions when converting
+                            to YAML.
+  -n, --no-flip             Perform other operations but do not flip the
+                            output format.
+  --version                 Show the version and exit.
+  --help                    Show this message and exit.
+```
 
 
-Cloudflip will detect the format of the input template and convert JSON to YAML and YAML to JSON, respectively.
+cfn-flip will detect the format of the input template and convert JSON to YAML and YAML to JSON, respectively.
 
 Examples:
 
