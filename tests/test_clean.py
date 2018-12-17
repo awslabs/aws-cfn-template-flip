@@ -251,6 +251,84 @@ def test_deep_nested_join():
     assert expected == actual
 
 
+def test_gh_63_no_value():
+    """
+    Test that Joins with conditionals that can evaluate to AWS::NoValue
+    are not converted to Fn::Sub
+    """
+
+    source = {
+        "Fn::Join": [
+            ",",
+            [
+                {
+                    "Fn::If": [
+                        "Condition1",
+                        "True1",
+                        "AWS::NoValue"
+                    ]
+                },
+                {
+                    "Fn::If": [
+                        "Condition2",
+                        "True2",
+                        "False2"
+                    ]
+                }
+            ]
+        ]
+    }
+
+    assert source == clean(source)
+
+
+def test_gh_63_value():
+    """
+    Test that Joins with conditionals that cannot evaluate to AWS::NoValue
+    are converted to Fn::Sub
+    """
+
+    source = {
+        "Fn::Join": [
+            ",",
+            [
+                {
+                    "Fn::If": [
+                        "Condition1",
+                        "True1",
+                        "False1"
+                    ]
+                },
+                {
+                    "Fn::If": [
+                        "Condition2",
+                        "True2",
+                        "False2"
+                    ]
+                }
+            ]
+        ]
+    }
+
+    expected = ODict((
+        ("Fn::Sub", [
+            "${Param1},${Param2}",
+            ODict((
+                ("Param1", ODict((
+                    ("Fn::If", ["Condition1", "True1", "False1"]),
+                ))),
+                ("Param2", ODict((
+                    ("Fn::If", ["Condition2", "True2", "False2"]),
+                ))),
+            )),
+        ]),
+    ))
+
+    actual = clean(source)
+
+    assert actual == expected
+
+
 def test_misused_join():
     """
     Test that we don't break in the case that there is

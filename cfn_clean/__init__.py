@@ -53,6 +53,13 @@ def convert_join(value):
                 new_parts.append("${{{}}}".format(".".join(params)))
             else:
                 for key, val in args.items():
+                    # we want to bail if a conditional can evaluate to AWS::NoValue
+                    if isinstance(val, dict):
+                        if "Fn::If" in val and "AWS::NoValue" in val["Fn::If"]:
+                            return {
+                                "Fn::Join": value,
+                            }
+
                     if val == part:
                         param_name = key
                         break
