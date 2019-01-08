@@ -100,24 +100,6 @@ def fail_message():
     return "Could not determine the input format"
 
 
-def test_flip_to_multibyte_json(multibyte_json, parsed_multibyte_yaml):
-    """
-    Test that load multibyte file performs correctly
-    """
-
-    actual = cfn_flip.to_yaml(multibyte_json, is_multibyte=True)
-    assert load_yaml(actual) == parsed_multibyte_yaml
-
-
-def test_flip_to_multibyte_yaml(multibyte_yaml, parsed_multibyte_json):
-    """
-    Test that load multibyte file performs correctly
-    """
-
-    actual = cfn_flip.to_json(multibyte_yaml, is_multibyte=True)
-    assert load_json(actual) == parsed_multibyte_json
-
-
 def test_to_json_with_yaml(input_yaml, parsed_json):
     """
     Test that to_json performs correctly
@@ -234,6 +216,24 @@ def test_flip_to_clean_yaml(input_json, clean_yaml, parsed_clean_yaml):
 
     parsed_actual = load_yaml(actual)
     assert parsed_actual == parsed_clean_yaml
+
+
+def test_flip_to_multibyte_json(multibyte_json, parsed_multibyte_yaml):
+    """
+    Test that load multibyte file performs correctly
+    """
+
+    actual = cfn_flip.to_yaml(multibyte_json, is_multibyte=True)
+    assert load_yaml(actual) == parsed_multibyte_yaml
+
+
+def test_flip_to_multibyte_yaml(multibyte_yaml, parsed_multibyte_json):
+    """
+    Test that load multibyte file performs correctly
+    """
+
+    actual = cfn_flip.to_json(multibyte_yaml, is_multibyte=True)
+    assert load_json(actual) == parsed_multibyte_json
 
 
 def test_flip_with_bad_data(fail_message, bad_data):
