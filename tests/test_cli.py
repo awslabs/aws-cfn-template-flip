@@ -155,3 +155,25 @@ def test_specified_yaml_output_overrides_j_flag(tmpdir):
     assert not result.exception
     assert result.exit_code == 0
     assert file_output.read() == file_standard
+
+
+def test_cli_to_multibyte_json(tmpdir):
+    file_expected = open('examples/test_multibyte.yaml', 'r').read()
+    file_output = tmpdir.join('test_multibyte_export.yaml')
+
+    runner = CliRunner()
+    result = runner.invoke(main.main, ['-m', 'examples/test_multibyte.json', file_output.strpath])
+    assert not result.exception
+    assert result.exit_code == 0
+    assert file_output.read() == file_expected
+
+
+def test_cli_to_multibyte_yaml(tmpdir):
+    file_expected = open('examples/test_multibyte.json', 'r').read()
+    file_output = tmpdir.join('test_multibyte_export.json')
+
+    runner = CliRunner()
+    result = runner.invoke(main.main, ['-m', 'examples/test_multibyte.yaml', file_output.strpath])
+    assert not result.exception
+    assert result.exit_code == 0
+    assert file_output.read() == file_expected

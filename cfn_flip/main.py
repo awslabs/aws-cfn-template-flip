@@ -24,6 +24,7 @@ import sys
 @click.option("--clean", "-c", is_flag=True, help="Performs some opinionated cleanup on your template.")
 @click.option("--long", "-l", is_flag=True, help="Use long-form syntax for functions when converting to YAML.")
 @click.option("--no-flip", "-n", is_flag=True, help="Perform other operations but do not flip the output format.")
+@click.option("--multibyte", "-m", is_flag=True, help="Fix garbled characters in multibyte text.")
 @click.argument("input", type=click.File("r"), default=sys.stdin)
 @click.argument("output", type=click.File("w"), default=sys.stdout)
 @click.version_option(message='AWS Cloudformation Template Flip, Version %(version)s')
@@ -39,6 +40,7 @@ def main(ctx, **kwargs):
     no_flip = kwargs.pop('no_flip')
     clean = kwargs.pop('clean')
     long_form = kwargs.pop('long')
+    is_multibyte = kwargs.pop('multibyte')
     input_file = kwargs.pop('input')
     output_file = kwargs.pop('output')
 
@@ -60,6 +62,7 @@ def main(ctx, **kwargs):
             clean_up=clean,
             no_flip=no_flip,
             long_form=long_form,
+            is_multibyte=is_multibyte
         ))
     except Exception as e:
         raise click.ClickException("{}".format(e))

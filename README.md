@@ -46,6 +46,7 @@ Options:
                             to YAML.
   -n, --no-flip             Perform other operations but do not flip the
                             output format.
+  -m, --multibyte           Fix garbled characters in multibyte text.
   --version                 Show the version and exit.
   --help                    Show this message and exit.
 ```

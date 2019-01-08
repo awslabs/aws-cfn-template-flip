@@ -20,13 +20,14 @@ def load_json(source):
     return json.loads(source, object_pairs_hook=ODict)
 
 
-def dump_json(source):
-    return json.dumps(source, indent=4, cls=DateTimeAwareJsonEncoder, separators=(',', ': '))
+def dump_json(source, is_multibyte=False):
+    return json.dumps(source, indent=4, cls=DateTimeAwareJsonEncoder,
+                      separators=(',', ': '), ensure_ascii=(not is_multibyte))
 
 
 def load_yaml(source):
     return yaml.load(source, Loader=CfnYamlLoader)
 
 
-def dump_yaml(source):
-    return yaml.dump(source, Dumper=CfnYamlDumper, default_flow_style=False)
+def dump_yaml(source, is_multibyte=False):
+    return yaml.dump(source, Dumper=CfnYamlDumper, default_flow_style=False, allow_unicode=is_multibyte)
