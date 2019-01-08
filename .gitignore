@@ -9,6 +9,7 @@
 .eggs/
 
 # Test data
+.pytest_cache/
 .cache/
 .coverage
 .tox/
@@ -17,3 +18,6 @@
 
 # IDE
 .idea/
+
+# Env manager.
+.python-version
