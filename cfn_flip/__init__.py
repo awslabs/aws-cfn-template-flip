@@ -15,6 +15,7 @@ from .yaml_dumper import get_dumper
 from cfn_clean import clean
 from cfn_tools import load_json, load_yaml, dump_json
 import yaml
+import sys
 
 
 def load(template):
@@ -106,6 +107,10 @@ def flip(template, in_format=None, out_format=None, clean_up=False, no_flip=Fals
 
     # Finished!
     if out_format == "json":
-        return dump_json(data, is_multibyte)
+        if sys.version[0] == "3":
+            return dump_json(data, is_multibyte)
+        else:
+            return dump_json(data, is_multibyte).encode('utf-8')
+
 
     return dump_yaml(data, clean_up, long_form, is_multibyte)
