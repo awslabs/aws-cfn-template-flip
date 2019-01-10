@@ -29,5 +29,5 @@ def load_yaml(source):
     return yaml.load(source, Loader=CfnYamlLoader)
 
 
-def dump_yaml(source, is_multibyte=False):
-    return yaml.dump(source, Dumper=CfnYamlDumper, default_flow_style=False, allow_unicode=is_multibyte)
+def dump_yaml(source):
+    return yaml.dump(source, Dumper=CfnYamlDumper, default_flow_style=False, allow_unicode=True)

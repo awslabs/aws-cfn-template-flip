@@ -34,7 +34,7 @@ def load(template):
             raise e
 
 
-def dump_yaml(data, clean_up=False, long_form=False, is_multibyte=False):
+def dump_yaml(data, clean_up=False, long_form=False):
     """
     Output some YAML
     """
@@ -43,7 +43,7 @@ def dump_yaml(data, clean_up=False, long_form=False, is_multibyte=False):
         data,
         Dumper=get_dumper(clean_up, long_form),
         default_flow_style=False,
-        allow_unicode=is_multibyte
+        allow_unicode=True
     )
 
 
@@ -60,7 +60,7 @@ def to_json(template, clean_up=False, is_multibyte=False):
     return dump_json(data, is_multibyte)
 
 
-def to_yaml(template, clean_up=False, long_form=False, is_multibyte=False):
+def to_yaml(template, clean_up=False, long_form=False):
     """
     Assume the input is JSON and convert to YAML
     """
@@ -70,7 +70,7 @@ def to_yaml(template, clean_up=False, long_form=False, is_multibyte=False):
     if clean_up:
         data = clean(data)
 
-    return dump_yaml(data, clean_up, long_form, is_multibyte)
+    return dump_yaml(data, clean_up, long_form)
 
 
 def flip(template, in_format=None, out_format=None, clean_up=False, no_flip=False, long_form=False, is_multibyte=False):
@@ -113,4 +113,4 @@ def flip(template, in_format=None, out_format=None, clean_up=False, no_flip=Fals
             return dump_json(data, is_multibyte).encode('utf-8')
 
 
-    return dump_yaml(data, clean_up, long_form, is_multibyte)
+    return dump_yaml(data, clean_up, long_form)
