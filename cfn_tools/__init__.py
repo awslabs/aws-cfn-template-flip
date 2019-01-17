@@ -20,9 +20,9 @@ def load_json(source):
     return json.loads(source, object_pairs_hook=ODict)
 
 
-def dump_json(source, is_multibyte=False):
+def dump_json(source):
     return json.dumps(source, indent=4, cls=DateTimeAwareJsonEncoder,
-                      separators=(',', ': '), ensure_ascii=(not is_multibyte))
+                      separators=(',', ': '), ensure_ascii=False)
 
 
 def load_yaml(source):

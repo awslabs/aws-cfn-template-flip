@@ -232,7 +232,7 @@ def test_flip_to_multibyte_yaml(multibyte_yaml, parsed_multibyte_json):
     Test that load multibyte file performs correctly
     """
 
-    actual = cfn_flip.to_json(multibyte_yaml, is_multibyte=True)
+    actual = cfn_flip.to_json(multibyte_yaml)
     assert load_json(actual) == parsed_multibyte_json
 
 
