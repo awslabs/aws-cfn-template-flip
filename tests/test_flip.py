@@ -49,6 +49,18 @@ def clean_yaml():
 
 
 @pytest.fixture
+def multibyte_json():
+    with open("examples/test_multibyte.json", "r") as f:
+        return f.read().strip()
+
+
+@pytest.fixture
+def multibyte_yaml():
+    with open("examples/test_multibyte.yaml", "r") as f:
+        return f.read().strip()
+
+
+@pytest.fixture
 def parsed_json():
     return load_json(input_json())
 
@@ -66,6 +78,16 @@ def parsed_clean_json():
 @pytest.fixture
 def parsed_clean_yaml():
     return load_yaml(clean_yaml())
+
+
+@pytest.fixture
+def parsed_multibyte_json():
+    return load_json(multibyte_json())
+
+
+@pytest.fixture
+def parsed_multibyte_yaml():
+    return load_yaml(multibyte_yaml())
 
 
 @pytest.fixture
@@ -194,6 +216,24 @@ def test_flip_to_clean_yaml(input_json, clean_yaml, parsed_clean_yaml):
 
     parsed_actual = load_yaml(actual)
     assert parsed_actual == parsed_clean_yaml
+
+
+def test_flip_to_multibyte_json(multibyte_json, parsed_multibyte_yaml):
+    """
+    Test that load multibyte file performs correctly
+    """
+
+    actual = cfn_flip.to_yaml(multibyte_json)
+    assert load_yaml(actual) == parsed_multibyte_yaml
+
+
+def test_flip_to_multibyte_yaml(multibyte_yaml, parsed_multibyte_json):
+    """
+    Test that load multibyte file performs correctly
+    """
+
+    actual = cfn_flip.to_json(multibyte_yaml)
+    assert load_json(actual) == parsed_multibyte_json
 
 
 def test_flip_with_bad_data(fail_message, bad_data):

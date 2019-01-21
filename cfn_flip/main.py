@@ -59,7 +59,7 @@ def main(ctx, **kwargs):
             out_format=out_format,
             clean_up=clean,
             no_flip=no_flip,
-            long_form=long_form,
+            long_form=long_form
         ))
     except Exception as e:
         raise click.ClickException("{}".format(e))

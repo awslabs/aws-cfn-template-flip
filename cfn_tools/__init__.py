@@ -21,7 +21,8 @@ def load_json(source):
 
 
 def dump_json(source):
-    return json.dumps(source, indent=4, cls=DateTimeAwareJsonEncoder, separators=(',', ': '))
+    return json.dumps(source, indent=4, cls=DateTimeAwareJsonEncoder,
+                      separators=(',', ': '), ensure_ascii=False)
 
 
 def load_yaml(source):
@@ -29,4 +30,4 @@ def load_yaml(source):
 
 
 def dump_yaml(source):
-    return yaml.dump(source, Dumper=CfnYamlDumper, default_flow_style=False)
+    return yaml.dump(source, Dumper=CfnYamlDumper, default_flow_style=False, allow_unicode=True)
