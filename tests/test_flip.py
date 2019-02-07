@@ -17,6 +17,11 @@ import cfn_flip
 import pytest
 import yaml
 
+try:
+    from json import JSONDecodeError
+except ImportError:
+    # Python < 3.5
+    JSONDecodeError = ValueError
 
 @pytest.fixture
 def input_json():
@@ -97,7 +102,11 @@ def bad_data():
 
 @pytest.fixture
 def fail_message():
-    return "Could not determine the input format"
+    import six
+
+    if six.PY2:
+        return "No JSON object could be decoded"
+    return "Expecting value: line 1 column 1"
 
 
 def test_to_json_with_yaml(input_yaml, parsed_json):
@@ -154,13 +163,13 @@ def test_to_yaml_with_json(input_json, parsed_yaml):
     assert parsed_actual == parsed_yaml
 
 
-def test_to_yaml_with_yaml(input_yaml):
+def test_to_yaml_with_yaml(fail_message, input_yaml):
     """
     Test that to_yaml fails with a ValueError when passed yaml
     Yaml is not valid json
     """
 
-    with pytest.raises(Exception, message="Invalid JSON"):
+    with pytest.raises(JSONDecodeError, match=fail_message):
         cfn_flip.to_yaml(input_yaml)
 
 
@@ -241,7 +250,7 @@ def test_flip_with_bad_data(fail_message, bad_data):
     Test that flip fails with an error message when passed bad data
     """
 
-    with pytest.raises(Exception, message=fail_message):
+    with pytest.raises(JSONDecodeError, match=fail_message):
         cfn_flip.flip(bad_data)
 
 
@@ -500,14 +509,14 @@ def test_no_flip_with_explicit_yaml(input_yaml, parsed_yaml):
     assert parsed_actual == parsed_yaml
 
 
-def test_explicit_json_rejects_yaml(input_yaml):
+def test_explicit_json_rejects_yaml(fail_message, input_yaml):
     """
     Given an output format of YAML
     The input format should be assumed to be JSON
     and YAML input should be rejected
     """
 
-    with pytest.raises(Exception, message="Invalid JSON"):
+    with pytest.raises(JSONDecodeError, match=fail_message):
         cfn_flip.flip(input_yaml, out_format="yaml")
 
 
@@ -518,7 +527,10 @@ def test_explicit_yaml_rejects_bad_yaml(bad_data):
     and YAML input should be rejected
     """
 
-    with pytest.raises(Exception, message="Invalid YAML"):
+    with pytest.raises(
+        yaml.scanner.ScannerError,
+        match="while scanning for the next token\nfound character \'\\\\t\' that cannot start any token",
+    ):
         cfn_flip.flip(bad_data, out_format="json")
 
 
