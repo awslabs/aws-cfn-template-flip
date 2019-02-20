@@ -74,7 +74,7 @@ def test_constructor_disallows_dict():
     as ordering will be lost
     """
 
-    with pytest.raises(Exception, message="ODict does not allow construction from a dict"):
+    with pytest.raises(Exception, match="ODict does not allow construction from a dict"):
         ODict({
             "z": 1,
             "a": 2,

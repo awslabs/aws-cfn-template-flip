@@ -80,6 +80,7 @@ def test_dump_json():
     JSON dumping just needs to know about datetimes,
     provide a nice indent, and preserve order
     """
+    import sys
 
     source = ODict((
         ("z", datetime.time(3, 45)),
@@ -95,7 +96,14 @@ def test_dump_json():
         "a": "2012-05-02T03:45:00",
     }
 
-    with pytest.raises(TypeError, message="complex is not JSON serializable"):
+    if sys.version_info < (3, 6):
+        fail_message = "\(1\+1j\) is not JSON serializable"
+    elif sys.version_info< (3, 7):
+        fail_message = "Object of type 'complex' is not JSON serializable"
+    else:
+        fail_message = "Object of type complex is not JSON serializable"
+
+    with pytest.raises(TypeError, match=fail_message):
         dump_json({
             "c": 1 + 1j,
         })
