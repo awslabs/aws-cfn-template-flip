@@ -27,7 +27,7 @@ setup(
         "six",
     ],
     setup_requires=['pytest-runner'],
-    tests_require=['pytest<4.3.0', 'pytest-cov'],
+    tests_require=['pytest>=4.3.0', 'pytest-cov'],
     zip_safe=False,
     entry_points={
         "console_scripts": ["cfn-flip=cfn_flip.main:main"],
