@@ -66,33 +66,33 @@ def multibyte_yaml():
 
 
 @pytest.fixture
-def parsed_json():
-    return load_json(input_json())
+def parsed_json(input_json):
+    return load_json(input_json)
 
 
 @pytest.fixture
-def parsed_yaml():
-    return load_yaml(input_yaml())
+def parsed_yaml(input_yaml):
+    return load_yaml(input_yaml)
 
 
 @pytest.fixture
-def parsed_clean_json():
-    return load_json(clean_json())
+def parsed_clean_json(clean_json):
+    return load_json(clean_json)
 
 
 @pytest.fixture
-def parsed_clean_yaml():
-    return load_yaml(clean_yaml())
+def parsed_clean_yaml(clean_yaml):
+    return load_yaml(clean_yaml)
 
 
 @pytest.fixture
-def parsed_multibyte_json():
-    return load_json(multibyte_json())
+def parsed_multibyte_json(multibyte_json):
+    return load_json(multibyte_json)
 
 
 @pytest.fixture
-def parsed_multibyte_yaml():
-    return load_yaml(multibyte_yaml())
+def parsed_multibyte_yaml(multibyte_yaml):
+    return load_yaml(multibyte_yaml)
 
 
 @pytest.fixture
