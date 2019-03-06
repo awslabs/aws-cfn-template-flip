@@ -55,7 +55,7 @@ def convert_join(value):
                 for key, val in args.items():
                     # we want to bail if a conditional can evaluate to AWS::NoValue
                     if isinstance(val, dict):
-                        if "Fn::If" in val and "AWS::NoValue" in val["Fn::If"]:
+                        if "Fn::If" in val and "AWS::NoValue" in str(val["Fn::If"]):
                             return {
                                 "Fn::Join": value,
                             }
