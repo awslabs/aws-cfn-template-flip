@@ -265,7 +265,7 @@ def test_gh_63_no_value():
                     "Fn::If": [
                         "Condition1",
                         "True1",
-                        "AWS::NoValue"
+                        "Ref: AWS::NoValue"
                     ]
                 },
                 {
