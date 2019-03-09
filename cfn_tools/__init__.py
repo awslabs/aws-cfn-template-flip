@@ -26,7 +26,7 @@ def dump_json(source):
 
 
 def load_yaml(source):
-    return yaml.load(source, Loader=CfnYamlLoader)
+    return yaml.safe_load(source,loader=CfnYamlLoader)
 
 
 def dump_yaml(source):
