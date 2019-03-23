@@ -28,7 +28,7 @@ class CfnYamlDumper(yaml.Dumper):
 
     def represent_scalar(self, tag, value, style=None):
             if isinstance(value, six.text_type):
-                if "\n" in value and style is None:
+                if any(eol in value for eol in "\n\r") and style is None:
                     style = "\""
 
                 # return super(CfnYamlDumper, self).represent_scalar(TAG_STRING, value, style)
