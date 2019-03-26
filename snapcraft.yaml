@@ -6,7 +6,12 @@ description: |
 
   The term "Flip" is inspired by the well-known Unix command-line tool flip which converts text files between Unix, Mac, and MS-DOS formats.
 
+license: Apache-2.0
+
+base: core18
+
 grade: stable
+confinement: strict
 
 parts:
   cfn-flip:
@@ -17,6 +22,3 @@ parts:
 apps:
   cfn-flip:
     command: bin/cfn-flip
-    environment:
-      LC_ALL: C.UTF-8
-      LAND: C.UTF-8
