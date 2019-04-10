@@ -1,6 +1,7 @@
 [![Build Status](https://www.travis-ci.org/awslabs/aws-cfn-template-flip.svg?branch=master)](https://www.travis-ci.org/awslabs/aws-cfn-template-flip)
 [![PyPI version](https://badge.fury.io/py/cfn_flip.svg)](https://badge.fury.io/py/cfn_flip)
 [![Codecov Test Coverage](https://codecov.io/gh/awslabs/aws-cfn-template-flip/branch/master/graphs/badge.svg?style=flat)](https://codecov.io/gh/awslabs/aws-cfn-template-flip)
+[![Snap Status](https://build.snapcraft.io/badge/awslabs/aws-cfn-template-flip.svg)](https://build.snapcraft.io/user/awslabs/aws-cfn-template-flip)
 
 [![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-white.svg)](https://snapcraft.io/cfn-flip)
 
