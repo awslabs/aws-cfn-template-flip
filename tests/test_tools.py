@@ -97,8 +97,8 @@ def test_dump_json():
     }
 
     if sys.version_info < (3, 6):
-        fail_message = "\(1\+1j\) is not JSON serializable"
-    elif sys.version_info< (3, 7):
+        fail_message = r"\(1\+1j\) is not JSON serializable"
+    elif sys.version_info < (3, 7):
         fail_message = "Object of type 'complex' is not JSON serializable"
     else:
         fail_message = "Object of type complex is not JSON serializable"

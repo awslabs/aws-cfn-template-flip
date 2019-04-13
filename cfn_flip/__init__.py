@@ -112,5 +112,4 @@ def flip(template, in_format=None, out_format=None, clean_up=False, no_flip=Fals
         else:
             return dump_json(data).encode('utf-8')
 
-
     return dump_yaml(data, clean_up, long_form)

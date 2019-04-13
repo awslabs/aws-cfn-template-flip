@@ -24,16 +24,16 @@ class CfnYamlDumper(yaml.Dumper):
     """
 
     def increase_indent(self, flow=False, indentless=False):
-            return super(CfnYamlDumper, self).increase_indent(flow, False)
+        return super(CfnYamlDumper, self).increase_indent(flow, False)
 
     def represent_scalar(self, tag, value, style=None):
-            if isinstance(value, six.text_type):
-                if any(eol in value for eol in "\n\r") and style is None:
-                    style = "\""
+        if isinstance(value, six.text_type):
+            if any(eol in value for eol in "\n\r") and style is None:
+                style = "\""
 
-                # return super(CfnYamlDumper, self).represent_scalar(TAG_STRING, value, style)
+            # return super(CfnYamlDumper, self).represent_scalar(TAG_STRING, value, style)
 
-            return super(CfnYamlDumper, self).represent_scalar(tag, value, style)
+        return super(CfnYamlDumper, self).represent_scalar(tag, value, style)
 
 
 def string_representer(dumper, value):
