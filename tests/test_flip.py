@@ -23,6 +23,7 @@ except ImportError:
     # Python < 3.5
     JSONDecodeError = ValueError
 
+
 @pytest.fixture
 def input_json():
     with open("examples/test.json", "r") as f:
