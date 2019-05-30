@@ -1,0 +1,22 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  ExampleStateMachineResource:
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      DefinitionString: |-
+        {
+          "StartAt": "First State",
+          "States": {
+            "First State": {
+              "Type": "Task",
+              "Resource": "FunctionARN",
+              "Next": "Second State"
+            },
+            "Second State": {
+              "Type": "Task",
+              "Resource": "FunctionARN",
+              "End": true
+            }
+          }
+        }

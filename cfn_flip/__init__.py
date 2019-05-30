@@ -12,7 +12,7 @@ See the License for the specific language governing permissions and limitations 
 """
 
 from .yaml_dumper import get_dumper
-from cfn_clean import clean
+from cfn_clean import clean, cfn_literal_parser
 from cfn_tools import load_json, load_yaml, dump_json
 import yaml
 import sys
@@ -60,7 +60,7 @@ def to_json(template, clean_up=False):
     return dump_json(data)
 
 
-def to_yaml(template, clean_up=False, long_form=False):
+def to_yaml(template, clean_up=False, long_form=False, literal=True):
     """
     Assume the input is JSON and convert to YAML
     """
@@ -69,6 +69,9 @@ def to_yaml(template, clean_up=False, long_form=False):
 
     if clean_up:
         data = clean(data)
+
+    if literal:
+        data = cfn_literal_parser(data)
 
     return dump_yaml(data, clean_up, long_form)
 

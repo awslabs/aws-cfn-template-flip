@@ -23,7 +23,7 @@ setup(
     packages=find_packages(exclude=["tests"]),
     install_requires=[
         "Click",
-        "PyYAML>=3.13b1",
+        "PyYAML>=4.1",
         "six",
     ],
     tests_require=[

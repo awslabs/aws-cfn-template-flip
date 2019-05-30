@@ -12,7 +12,14 @@ See the License for the specific language governing permissions and limitations 
 """
 
 from cfn_tools.odict import ODict
+from cfn_tools.literal import LiteralString
+import json
 import six
+
+UNCONVERTED_KEYS = [
+    # Resource Type, String Attribute to keep Json
+    ("AWS::StepFunctions::StateMachine", "DefinitionString")
+]
 
 
 def convert_join(value):
@@ -97,16 +104,47 @@ def clean(source):
     """
     Clean up the source:
     * Replace use of Fn::Join with Fn::Sub
+    * Keep json body for specific resource properties
     """
 
     if isinstance(source, dict):
         for key, value in source.items():
             if key == "Fn::Join":
                 return convert_join(value)
+
             else:
                 source[key] = clean(value)
 
     elif isinstance(source, list):
         return [clean(item) for item in source]
+
+    return source
+
+
+def cfn_literal_parser(source):
+    """
+    Sanitize the source:
+    * Keep json body for specific resource properties
+    """
+
+    if isinstance(source, dict):
+        for key, value in source.items():
+            if key == "Type":
+                for item in UNCONVERTED_KEYS:
+                    if value == item[0]:
+                        # Checking if this resource has "Properties" and the property literal to maintain
+                        # Better check than just try/except KeyError :-)
+                        if source.get("Properties") and source.get("Properties", {}).get(item[1]):
+                            source["Properties"][item[1]] = LiteralString(u"{}".format(json.dumps(
+                                source["Properties"][item[1]],
+                                indent=2,
+                                separators=(',', ': '))
+                            ))
+
+            else:
+                source[key] = cfn_literal_parser(value)
+
+    elif isinstance(source, list):
+        return [cfn_literal_parser(item) for item in source]
 
     return source

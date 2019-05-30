@@ -12,10 +12,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and limitations under the License.
 """
 
+import six
+
 from cfn_clean.yaml_dumper import CleanCfnYamlDumper
+from cfn_tools.literal import LiteralString
 from cfn_tools.odict import ODict
 from cfn_tools.yaml_dumper import CfnYamlDumper
-import six
 
 TAG_STR = "tag:yaml.org,2002:str"
 TAG_MAP = "tag:yaml.org,2002:map"
@@ -51,6 +53,10 @@ class LongCleanDumper(CleanCfnYamlDumper):
     """
     Preserves long-form function syntax
     """
+
+
+def literal_unicode_representer(dumper, value):
+    return dumper.represent_scalar(TAG_STR, value, style='|')
 
 
 def string_representer(dumper, value):
@@ -103,6 +109,8 @@ def map_representer(dumper, value):
 # Customise our dumpers
 Dumper.add_representer(ODict, map_representer)
 Dumper.add_representer(six.text_type, string_representer)
+Dumper.add_representer(LiteralString, literal_unicode_representer)
+CleanDumper.add_representer(LiteralString, literal_unicode_representer)
 CleanDumper.add_representer(ODict, map_representer)
 
 
