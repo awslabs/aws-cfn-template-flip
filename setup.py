@@ -12,7 +12,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="cfn_flip",
-    version="1.2.0",
+    version="1.2.1",
     description="Convert AWS CloudFormation templates between JSON and YAML formats",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
