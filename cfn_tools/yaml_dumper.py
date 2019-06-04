@@ -12,6 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and limitations under the License.
 """
 
+import re
 import six
 import yaml
 from yaml.emitter import Emitter, ScalarAnalysis
@@ -21,6 +22,7 @@ from .odict import ODict
 
 TAG_MAP = "tag:yaml.org,2002:map"
 TAG_STRING = "tag:yaml.org,2002:str"
+AWS_ACCOUNT_ID = r"^0[0-9]+$"
 
 
 class CfnEmitter(Emitter):
@@ -47,6 +49,9 @@ class CfnYamlDumper(yaml.Dumper, CfnEmitter):
         return super(CfnYamlDumper, self).increase_indent(flow, False)
 
     def represent_scalar(self, tag, value, style=None):
+        if re.match(AWS_ACCOUNT_ID, value):
+            style = "\'"
+
         if isinstance(value, six.text_type):
             if any(eol in value for eol in "\n\r") and style is None:
                 style = "\""
