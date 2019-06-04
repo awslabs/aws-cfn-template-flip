@@ -9,11 +9,13 @@ or in the "license" file accompanying this file. This file is distributed on an 
 """
 
 from .odict import ODict
+import re
 import six
 import yaml
 
 TAG_MAP = "tag:yaml.org,2002:map"
 TAG_STRING = "tag:yaml.org,2002:str"
+AWS_ACCOUNT_ID = r"^0[0-9]+$"
 
 
 class CfnYamlDumper(yaml.Dumper):
@@ -27,10 +29,12 @@ class CfnYamlDumper(yaml.Dumper):
         return super(CfnYamlDumper, self).increase_indent(flow, False)
 
     def represent_scalar(self, tag, value, style=None):
+        if  re.match(AWS_ACCOUNT_ID, value):
+            style = "\'"
+
         if isinstance(value, six.text_type):
             if any(eol in value for eol in "\n\r") and style is None:
                 style = "\""
-
             # return super(CfnYamlDumper, self).represent_scalar(TAG_STRING, value, style)
 
         return super(CfnYamlDumper, self).represent_scalar(tag, value, style)
