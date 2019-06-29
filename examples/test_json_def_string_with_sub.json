@@ -1,0 +1,85 @@
+{
+    "Resources": {
+        "FeedbackRequestStateMachine": {
+            "Properties": {
+                "DefinitionString": {
+                    "Fn::Sub": [
+                        "\n        {\n            \"Comment\": \"State machine which awaits until defined date to submit a feedback request\",\n            \"StartAt\": \"WaitForDueDate\",\n            \"States\": {\n                \"WaitForDueDate\": {\n                    \"Type\": \"Wait\",\n                    \"TimestampPath\": \"$.plannedAt\",\n                    \"Next\": \"SubmitFeedbackRequestToSQS\"\n                },\n                \"SubmitFeedbackRequestToSQS\": {\n                    \"Type\": \"Task\",\n                    \"Resource\": \"arn:aws:states:::sqs:sendMessage\",\n                    \"Parameters\": {\n                        \"MessageBody.$\": \"$\",\n                        \"QueueUrl\": \"${feedbackQueueUrl}\"\n                    },\n                    \"End\": true\n                }\n            }\n        }\n        ",
+                        {
+                            "feedbackQueueUrl": {
+                                "Ref": "FeedbackRequestsQueue"
+                            }
+                        }
+                    ]
+                },
+                "RoleArn": {
+                    "Fn::Join": [
+                        "/",
+                        [
+                            {
+                                "Fn::Sub": "arn:aws:iam::${AWS::AccountId}:role"
+                            },
+                            {
+                                "Ref": "FeedbackRequestStateMachineRole"
+                            }
+                        ]
+                    ]
+                },
+                "StateMachineName": {
+                    "Fn::Sub": "${AWS::StackName}-FeedbackRequestStateMachine"
+                }
+            },
+            "Type": "AWS::StepFunctions::StateMachine"
+        },
+        "FeedbackRequestStateMachineRole": {
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": [
+                                "sts:AssumeRole"
+                            ],
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": [
+                                    {
+                                        "Fn::Sub": "states.${AWS::Region}.amazonaws.com"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "Policies": [
+                    {
+                        "PolicyDocument": {
+                            "Statement": [
+                                {
+                                    "Action": [
+                                        "sqs:SendMessage"
+                                    ],
+                                    "Effect": "Allow",
+                                    "Resource": {
+                                        "Fn::GetAtt": [
+                                            "FeedbackRequestsQueue",
+                                            "Arn"
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        "PolicyName": "submit_request_to_sqs"
+                    }
+                ]
+            },
+            "Type": "AWS::IAM::Role"
+        },
+        "FeedbackRequestsQueue": {
+            "Properties": {
+                "MessageRetentionPeriod": 172800,
+                "VisibilityTimeout": 600
+            },
+            "Type": "AWS::SQS::Queue"
+        }
+    }
+}
