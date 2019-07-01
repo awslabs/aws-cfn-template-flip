@@ -149,7 +149,7 @@ def test_odict_fail_with_dict():
     items = {'key1': 'value1'}
     with pytest.raises(Exception) as e:
         ODict(items)
-    assert 'ODict does not allow construction from a dict' in str(e)
+    assert 'ODict does not allow construction from a dict' == str(e.value)
 
 
 def test_represent_scalar():
@@ -176,7 +176,7 @@ def test_multi_constructor_with_invalid_node_type():
     """
     with pytest.raises(Exception) as e:
         multi_constructor(None, None, None)
-    assert 'Bad tag: !Fn::None' in str(e)
+    assert 'Bad tag: !Fn::None' in str(e.value)
 
 
 def test_construct_getattr_with_invalid_node_type():
@@ -187,7 +187,7 @@ def test_construct_getattr_with_invalid_node_type():
     node = MockNode()
     with pytest.raises(ValueError) as e:
         construct_getatt(node)
-    assert 'Unexpected node type:' in str(e)
+    assert 'Unexpected node type:' in str(e.value)
 
 
 def test_construct_getattr_with_list():
