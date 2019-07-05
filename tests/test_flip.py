@@ -43,6 +43,18 @@ def input_json_with_literal():
 
 
 @pytest.fixture
+def input_json_with_def_string_with_sub():
+    with open("examples/test_json_def_string_with_sub.json", "r") as f:
+        return f.read().strip()
+
+
+@pytest.fixture
+def input_yaml_with_def_string_with_sub():
+    with open("examples/test_yaml_def_string_with_sub.yaml", "r") as f:
+        return f.read()
+
+
+@pytest.fixture
 def input_yaml():
     with open("examples/test.yaml", "r") as f:
         return f.read().strip()
@@ -636,3 +648,9 @@ def test_flip_to_yaml_with_json_literal(input_json_with_literal, parsed_yaml_wit
 
     actual = cfn_flip.to_yaml(input_json_with_literal)
     assert load_yaml(actual) == parsed_yaml_with_json_literal
+
+
+def test_flip_to_yaml_with_json_literal_with_sub(input_json_with_def_string_with_sub,
+                                                 input_yaml_with_def_string_with_sub):
+    actual = cfn_flip.to_yaml(input_json_with_def_string_with_sub)
+    assert actual == input_yaml_with_def_string_with_sub

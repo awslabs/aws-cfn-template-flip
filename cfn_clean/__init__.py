@@ -13,6 +13,12 @@ See the License for the specific language governing permissions and limitations 
 
 from cfn_tools.odict import ODict
 from cfn_tools.literal import LiteralString
+
+try:
+    from collections.abc import KeysView
+except ImportError:
+    from collections import KeysView
+
 import json
 import six
 
@@ -20,6 +26,17 @@ UNCONVERTED_KEYS = [
     # Resource Type, String Attribute to keep Json
     ("AWS::StepFunctions::StateMachine", "DefinitionString")
 ]
+
+
+def has_intrinsic_functions(parameter):
+    intrinsic_functions = ["Fn::Sub", "!Sub", "!GetAtt"]
+    result = False
+    if isinstance(parameter, (list, tuple, dict, KeysView)):
+        for item in parameter:
+            if item in intrinsic_functions:
+                result = True
+                break
+    return result
 
 
 def convert_join(value):
@@ -135,11 +152,12 @@ def cfn_literal_parser(source):
                         # Checking if this resource has "Properties" and the property literal to maintain
                         # Better check than just try/except KeyError :-)
                         if source.get("Properties") and source.get("Properties", {}).get(item[1]):
-                            source["Properties"][item[1]] = LiteralString(u"{}".format(json.dumps(
-                                source["Properties"][item[1]],
-                                indent=2,
-                                separators=(',', ': '))
-                            ))
+                            if not has_intrinsic_functions(source["Properties"][item[1]].keys()):
+                                source["Properties"][item[1]] = LiteralString(u"{}".format(json.dumps(
+                                    source["Properties"][item[1]],
+                                    indent=2,
+                                    separators=(',', ': '))
+                                ))
 
             else:
                 source[key] = cfn_literal_parser(value)
