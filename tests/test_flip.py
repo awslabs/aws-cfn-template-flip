@@ -188,14 +188,14 @@ def test_to_yaml_with_json(input_json, parsed_yaml):
     assert parsed_actual == parsed_yaml
 
 
-def test_to_yaml_with_yaml(fail_message, input_yaml):
+def test_to_yaml_with_yaml(input_yaml, parsed_yaml):
     """
-    Test that to_yaml fails with a ValueError when passed yaml
-    Yaml is not valid json
+    Test that to_yaml still works when passed yaml
     """
 
-    with pytest.raises(JSONDecodeError, match=fail_message):
-        cfn_flip.to_yaml(input_yaml)
+    actual = cfn_flip.to_yaml(input_yaml)
+
+    assert load_yaml(actual) == parsed_yaml
 
 
 def test_flip_to_json(input_yaml, input_json, parsed_json):

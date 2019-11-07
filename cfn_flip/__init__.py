@@ -52,7 +52,7 @@ def to_json(template, clean_up=False):
     Assume the input is YAML and convert to JSON
     """
 
-    data = load_yaml(template)
+    data, _ = load(template)
 
     if clean_up:
         data = clean(data)
@@ -65,7 +65,7 @@ def to_yaml(template, clean_up=False, long_form=False, literal=True):
     Assume the input is JSON and convert to YAML
     """
 
-    data = load_json(template)
+    data, _ = load(template)
 
     if clean_up:
         data = clean(data)
