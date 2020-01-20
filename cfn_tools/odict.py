@@ -44,5 +44,6 @@ class ODict(collections.OrderedDict):
 
         super(ODict, self).__init__(pairs)
 
-        old_items = self.items
-        self.items = lambda: OdictItems(old_items())
+    def items(self):
+        old_items = super(ODict, self).items()
+        return OdictItems(old_items)

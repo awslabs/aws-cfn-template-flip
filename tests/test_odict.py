@@ -9,6 +9,8 @@ or in the "license" file accompanying this file. This file is distributed on an 
 """
 
 from cfn_tools.odict import ODict
+from copy import deepcopy
+import pickle
 import pytest
 
 
@@ -94,3 +96,29 @@ def test_explicit_sorting():
     actual = sorted(case)
 
     assert actual == case
+
+
+def test_post_deepcopy_repr():
+    """
+    Repr should behave normally after deepcopy
+    """
+
+    dct = ODict([("a", 1)])
+    dct2 = deepcopy(dct)
+    assert repr(dct) == repr(dct2)
+    dct2["b"] = 2
+    assert repr(dct) != repr(dct2)
+
+
+def test_pickle():
+    """
+    Should be able to pickle and unpickle
+    """
+
+    dct = ODict([
+        ("c", 3),
+        ("d", 4),
+    ])
+    data = pickle.dumps(dct)
+    dct2 = pickle.loads(data)
+    assert dct == dct2
