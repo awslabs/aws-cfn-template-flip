@@ -53,13 +53,14 @@ def main(ctx, **kwargs):
         ctx.exit()
 
     try:
-        output_file.write(flip(
+        flipped = flip(
             input_file.read(),
             in_format=in_format,
             out_format=out_format,
             clean_up=clean,
             no_flip=no_flip,
             long_form=long_form
-        ))
+        )
+        output_file.write(flipped)
     except Exception as e:
         raise click.ClickException("{}".format(e))
