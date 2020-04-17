@@ -18,7 +18,7 @@ The term "Flip" is inspired by the well-known Unix command-line tool [flip](http
 AWS CloudFormation Template Flip can be installed using [pip](https://pip.pypa.io/en/stable/):
 
 ```bash
-pip install cfn_flip
+pip install cfn-flip
 ```
 
 ## Usage
