@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and limitations 
 from .yaml_dumper import get_dumper
 from cfn_clean import clean, cfn_literal_parser
 from cfn_tools import load_json, load_yaml, dump_json
+from cfn_tools._config import config
 import yaml
 import sys
 
@@ -43,7 +44,8 @@ def dump_yaml(data, clean_up=False, long_form=False):
         data,
         Dumper=get_dumper(clean_up, long_form),
         default_flow_style=False,
-        allow_unicode=True
+        allow_unicode=True,
+        width=config.col_width
     )
 
 

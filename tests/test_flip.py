@@ -49,6 +49,12 @@ def input_json_with_def_string_with_sub():
 
 
 @pytest.fixture
+def input_json_with_long_line():
+    with open("examples/test_json_data_long_line.json", "r") as f:
+        return f.read().strip()
+
+
+@pytest.fixture
 def input_yaml_with_def_string_with_sub():
     with open("examples/test_yaml_def_string_with_sub.yaml", "r") as f:
         return f.read()
@@ -87,6 +93,12 @@ def multibyte_yaml():
 @pytest.fixture
 def parsed_yaml_with_json_literal():
     with open("examples/test_json_data.yaml") as f:
+        return load_yaml(f.read().strip())
+
+
+@pytest.fixture
+def parsed_yaml_with_long_line():
+    with open("examples/test_yaml_long_line.yaml") as f:
         return load_yaml(f.read().strip())
 
 
@@ -568,8 +580,8 @@ def test_flip_to_yaml_with_longhand_functions(input_json, parsed_json):
     actual2 = cfn_flip.to_yaml(input_json, long_form=True)
 
     # No custom loader as there should be no custom tags
-    parsed_actual1 = yaml.load(actual1)
-    parsed_actual2 = yaml.load(actual2)
+    parsed_actual1 = yaml.load(actual1, Loader=yaml.FullLoader)
+    parsed_actual2 = yaml.load(actual2, Loader=yaml.FullLoader)
 
     # We use the parsed JSON as it contains long form function calls
     assert parsed_actual1 == parsed_json
@@ -653,4 +665,15 @@ def test_flip_to_yaml_with_json_literal(input_json_with_literal, parsed_yaml_wit
 def test_flip_to_yaml_with_json_literal_with_sub(input_json_with_def_string_with_sub,
                                                  input_yaml_with_def_string_with_sub):
     actual = cfn_flip.to_yaml(input_json_with_def_string_with_sub)
+    with open('output.yaml', 'w') as output:
+        output.write(actual)
     assert actual == input_yaml_with_def_string_with_sub
+
+
+def test_flip_to_yaml_with_json_long_line(input_json_with_long_line, parsed_yaml_with_long_line):
+    """
+    Test that load json with long line will translate to yaml without break line.
+    The configuration settings is 120 columns
+    """
+    actual = cfn_flip.to_yaml(input_json_with_long_line)
+    assert load_yaml(actual) == parsed_yaml_with_long_line

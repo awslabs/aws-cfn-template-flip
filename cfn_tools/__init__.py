@@ -30,4 +30,4 @@ def load_yaml(source):
 
 
 def dump_yaml(source):
-    return yaml.dump(source, Dumper=CfnYamlDumper, default_flow_style=False, allow_unicode=True)
+    return yaml.dump(source, Dumper=CfnYamlDumper, default_flow_style=False, allow_unicode=True, width=120)
