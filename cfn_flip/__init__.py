@@ -45,7 +45,7 @@ def dump_yaml(data, clean_up=False, long_form=False):
         Dumper=get_dumper(clean_up, long_form),
         default_flow_style=False,
         allow_unicode=True,
-        width=config.col_width
+        width=config.max_col_width
     )
 
 

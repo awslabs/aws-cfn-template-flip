@@ -18,6 +18,7 @@ from cfn_clean.yaml_dumper import CleanCfnYamlDumper
 from cfn_tools.literal import LiteralString
 from cfn_tools.odict import ODict
 from cfn_tools.yaml_dumper import CfnYamlDumper
+from cfn_tools._config import config
 
 TAG_STR = "tag:yaml.org,2002:str"
 TAG_MAP = "tag:yaml.org,2002:map"
@@ -26,7 +27,7 @@ CONVERTED_SUFFIXES = ["Ref", "Condition"]
 FN_PREFIX = "Fn::"
 
 # Maximum length of a string before switching to angle-bracket-style representation
-STR_MAX_LENGTH_QUOTED = 200
+STR_MAX_LENGTH_QUOTED = config.max_col_width
 # Maximum number of newlines a string can have before switching to pipe-style representation
 STR_MAX_LINES_QUOTED = 10
 

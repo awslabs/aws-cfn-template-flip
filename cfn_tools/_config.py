@@ -16,7 +16,7 @@ class _ConfigArg(NamedTuple):
 
 
 _CONFIG_DEFAULTS: Dict[str, _ConfigArg] = {
-    "col_width": _ConfigArg(dtype=int, nullable=False, has_default=True, default=120)}
+    "max_col_width": _ConfigArg(dtype=int, nullable=False, has_default=True, default=200)}
 
 
 class _Config:
