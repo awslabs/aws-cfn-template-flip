@@ -17,7 +17,7 @@ UNCONVERTED_SUFFIXES = ["Ref", "Condition"]
 FN_PREFIX = "Fn::"
 
 
-class CfnYamlLoader(yaml.Loader):
+class CfnYamlLoader(yaml.FullLoader):
     pass
 
 
