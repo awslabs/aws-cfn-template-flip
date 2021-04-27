@@ -22,7 +22,7 @@ _CONFIG_DEFAULTS: Dict[str, _ConfigArg] = {
 class _Config:
     """Cfn_flip's Configuration class."""
 
-    __slots__ = (f"_{attr}" for attr in _CONFIG_DEFAULTS)
+    # __slots__ = (f"_{attr}" for attr in _CONFIG_DEFAULTS)
 
     def __init__(self):
         for name, conf in _CONFIG_DEFAULTS.items():

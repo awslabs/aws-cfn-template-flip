@@ -18,7 +18,7 @@
 #
 import os
 import pytest
-from cfn_tools._config import config, apply_configs
+from cfn_tools._config import config, apply_configs, _CONFIG_DEFAULTS, _ConfigArg, _Config
 
 
 def test_config_rest():
@@ -49,3 +49,16 @@ def test_config_apply_configs():
     def temp_my_func(max_col_width):
         return max_col_width
     assert temp_my_func() == 200
+
+
+def test_config_apply_type_null():
+    _CONFIG_DEFAULTS['test_nullable'] = _ConfigArg(dtype=bool, nullable=True, has_default=False)
+    test_config = _Config()
+    test_config.test_nullable = None
+    assert test_config.test_nullable is None
+
+
+def test_config_apply_type_null_error():
+    _CONFIG_DEFAULTS['test_nullable'] = _ConfigArg(dtype=int, nullable=False, has_default=True, default="nil")
+    with pytest.raises(ValueError):
+        _ = _Config()
