@@ -73,7 +73,7 @@ class _Config:
         Examples
         --------
         >>> import cfn_flip
-        >>> cfn_flip.config.reset("max_columns")  # Reset one specific configuration
+        >>> cfn_flip.config.reset("max_col_width")  # Reset one specific configuration
         >>> cfn_flip.config.reset()  # Reset all
 
         """

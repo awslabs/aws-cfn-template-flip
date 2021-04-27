@@ -580,8 +580,8 @@ def test_flip_to_yaml_with_longhand_functions(input_json, parsed_json):
     actual2 = cfn_flip.to_yaml(input_json, long_form=True)
 
     # No custom loader as there should be no custom tags
-    parsed_actual1 = yaml.load(actual1, Loader=yaml.FullLoader)
-    parsed_actual2 = yaml.load(actual2, Loader=yaml.FullLoader)
+    parsed_actual1 = yaml.load(actual1, Loader=yaml.SafeLoader)
+    parsed_actual2 = yaml.load(actual2, Loader=yaml.SafeLoader)
 
     # We use the parsed JSON as it contains long form function calls
     assert parsed_actual1 == parsed_json

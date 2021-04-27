@@ -110,3 +110,50 @@ some_yaml = to_yaml(some_json)
 # flip, to_yaml, and to_json all support the clean_up flag
 clean_yaml = to_yaml(some_json, clean_up=True)
 ```
+
+### Configuration paramters
+
+You can configure some parameters like:
+
+`max_col_width`: Maximum columns before breakline. Default value is 200
+To change the configuration you can use:
+
+**Environment Variable**
+
+Linux/Unix:
+`export CFN_MAX_COL_WIDTH=120`
+
+Windows: `SET CFN_MAX_COL_WIDTH=120`
+
+**Python**
+
+```python
+
+from cfn_tools._config import config
+from cfn_flip import flip, to_yaml, to_json
+
+"""
+All functions expect a string containing serialised data
+and return a string containing serialised data
+or raise an exception if there is a problem parsing the input
+"""
+
+# Change the default number of columns to break line to 120
+config['max_col_width'] = "120"
+
+# flip takes a best guess at the serialisation format
+# and returns the opposite, converting json into yaml and vice versa
+some_yaml_or_json = flip(some_json_or_yaml)
+
+# to_json expects serialised yaml as input, and returns serialised json
+some_json = to_json(some_yaml)
+
+# to_yaml expects serialised json as input, and returns serialised yaml
+some_yaml = to_yaml(some_json)
+
+# The clean_up flag performs some opinionated, CloudFormation-specific sanitation of the input
+# For example, converting uses of Fn::Join to Fn::Sub
+# flip, to_yaml, and to_json all support the clean_up flag
+clean_yaml = to_yaml(some_json, clean_up=True)
+
+```
