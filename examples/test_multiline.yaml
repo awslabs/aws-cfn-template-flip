@@ -1,0 +1,7 @@
+UserData:
+  Fn::Base64: !Sub |
+    write_files:
+      - path: /etc/yum.repos.d/nix.repo
+        content: |
+           [nix]
+           name=nix Repository

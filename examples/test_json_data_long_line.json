@@ -1,0 +1,8 @@
+{
+      "app.example.com" : {
+         "(?#Configuration)^/(.*?\\.(fcgi|psgi)/)?(manager\\.html|confs/|$)" : "inGroup(\"admingroup\")",
+         "(?#Notifications)/(.*?\\.(fcgi|psgi)/)?notifications" : "inGroup(\"admingroup\") or $uid eq \"myuser\"",
+         "(?#Sessions)/(.*?\\.(fcgi|psgi)/)?sessions" : "inGroup(\"admingroup\") or $uid eq \"myuser\"",
+         "default" : "inGroup(\"admingroup\") or $uid eq \"myuser\""
+      }
+}
