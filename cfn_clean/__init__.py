@@ -148,7 +148,8 @@ def cfn_literal_parser(source):
                         # Checking if this resource has "Properties" and the property literal to maintain
                         # Better check than just try/except KeyError :-)
                         if source.get("Properties") and source.get("Properties", {}).get(item[1]):
-                            if not has_intrinsic_functions(source["Properties"][item[1]].keys()):
+                            if isinstance(source["Properties"][item[1]], dict) and \
+                                    not has_intrinsic_functions(source["Properties"][item[1]].keys()):
                                 source["Properties"][item[1]] = LiteralString(u"{}".format(json.dumps(
                                     source["Properties"][item[1]],
                                     indent=2,
