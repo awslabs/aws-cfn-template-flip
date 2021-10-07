@@ -2,7 +2,7 @@ on:
   push:
     branches: [ master ]
 
-name: Test commits to master
+name: Unit tests
 
 jobs:
   test:
