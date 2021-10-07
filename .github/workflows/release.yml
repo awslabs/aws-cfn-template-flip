@@ -41,4 +41,8 @@ jobs:
         run: |
           set -x
           (echo ${GITHUB_REF##*/}; echo; git cherry -v $(git describe --abbrev=0 HEAD^) | cut -d" " -f3-) > CHANGELOG
-          hub release create -a dist/* -F CHANGELOG "${GITHUB_REF##*/}"
+          assets=()
+          for f in ./dist/*; do
+            assets+=("-a" "$f")
+          done
+          hub release create "${assets[@]}" -F CHANGELOG "${GITHUB_REF##*/}"
