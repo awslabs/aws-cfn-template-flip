@@ -51,4 +51,30 @@ jobs:
           pip install setuptools wheel twine
 
       - name: Build
-        run: python setup.py sdist bdist_wheel
+        run: |
+          python setup.py sdist bdist_wheel
+          ls -R
+
+          #- name: Publish
+          #  env:
+          #    TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          #    TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+          #  run: twine upload dist/*
+      
+      - uses: actions/download-artifact@v2
+        with:
+          name: dist
+          path: dist
+
+      - name: Create GitHub release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ls dist
+          set -x
+          (echo ${GITHUB_REF##*/}; echo; git cherry -v $(git describe --abbrev=0 HEAD^) | cut -d" " -f3-) > CHANGELOG
+          assets=()
+          for tgz in ./dist/*.tar.gz; do
+            assets+=("-a" "$tgz")
+          done
+          hub release create "${assets[@]}" -F CHANGELOG "${GITHUB_REF##*/}"
