@@ -23,7 +23,7 @@ def test_yaml_no_ordered_dict():
     """
 
     yaml_string = "key: value"
-    data = yaml.load(yaml_string)
+    data = yaml.load(yaml_string, Loader=yaml.SafeLoader)
 
     assert type(data) == dict
 
