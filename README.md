@@ -6,6 +6,8 @@ See [the rain fmt documentation](https://aws-cloudformation.github.io/rain/rain_
 
 This deprecation notice does not affect the API in this package which may continue to be used.
 
+---
+
 [![Build Status](https://github.com/awslabs/aws-cfn-template-flip/actions/workflows/test.yml/badge.svg)](https://github.com/awslabs/aws-cfn-template-flip/actions/workflows/test.yml)
 [![PyPI version](https://badge.fury.io/py/cfn-flip.svg)](https://badge.fury.io/py/cfn-flip)
 [![Codecov Test Coverage](https://codecov.io/gh/awslabs/aws-cfn-template-flip/branch/master/graphs/badge.svg?style=flat)](https://codecov.io/gh/awslabs/aws-cfn-template-flip)
