@@ -5,6 +5,9 @@ on:
 
 name: Create release from tag
 
+permissions:
+  contents: write
+
 jobs:
   release:
     name: Release

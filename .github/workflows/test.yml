@@ -4,6 +4,9 @@ on:
 
 name: Unit tests
 
+permissions:
+  contents: read
+
 jobs:
   test:
     name: Test
