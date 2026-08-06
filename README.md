@@ -1,9 +1,5 @@
 **NOTICE:** For CLI usage, AWS CloudFormation Template Flip is now *deprecated*.
 
-You should use [rain](https://github.com/aws-cloudformation/rain) instead. `rain fmt` can convert CloudFormation templates between JSON and YAML.
-
-See [the rain fmt documentation](https://aws-cloudformation.github.io/rain/rain_fmt.html) for details.
-
 This deprecation notice does not affect the API in this package which may continue to be used.
 
 ---
